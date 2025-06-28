@@ -3,8 +3,10 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
 
+//routes
 const authRoutes = require("./routes/authRoutes");
-
+const wasteRoutes = require("./routes/wasteRoutes");
+const claimRoutes = require("./routes/claimRoutes");
 
 dotenv.config();
 connectDB();
@@ -20,6 +22,9 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/waste", wasteRoutes);
+app.use("/api/claims", claimRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
