@@ -39,12 +39,13 @@ const registerUser = async (req, res) => {
     });
 
     res.status(201).json({
+      message: "Successfull register",
       token,
       user: { id: user._id, name: user.name, email: user.email, role: user.role },
     });
   } catch (err) {
     console.error("Registration error:", err); // Log the full error for debugging
-    res.status(500).json({ message: err.message });
+    res.status(501).json({ message: err.message });
   }
 };
 
@@ -63,6 +64,7 @@ const loginUser = async (req, res) => {
     });
 
     res.status(200).json({
+      message: "Successfull login",
       token,
       user: { id: user._id, name: user.name, email: user.email, role: user.role },
     });
