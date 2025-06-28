@@ -29,7 +29,7 @@ const Register = () => {
     try {
       const res = await axios.post("http://localhost:5000/api/auth/register", formData);
       login(res.data);
-      navigate("/dashboard");
+      navigate(`/${res.data.user.role}/dashboard`);
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Something went wrong");
@@ -38,8 +38,10 @@ const Register = () => {
     }
   };
 
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-300 to-emerald-500 px-4">
       <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
         <h2 className="text-2xl font-semibold text-center text-green-700 mb-6">
           Register to FarmCycle
@@ -68,15 +70,25 @@ const Register = () => {
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 outline-none"
           />
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Create Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 outline-none"
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Create Password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 outline-none pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute inset-y-0 right-0 flex items-center px-3 text-sm text-gray-600 hover:text-green-600 focus:outline-none"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
+
 
           <input
             type="text"
@@ -104,6 +116,15 @@ const Register = () => {
           >
             {loading ? "Registering..." : "Register"}
           </button>
+          <p className="mt-4 text-center text-md">
+            Already have an account?{" "}
+            <button
+              type="button"
+              onClick={() => navigate("/login")}
+              className="text-green-600 hover:underline font-medium">
+              Login
+            </button>
+        </p>
         </form>
       </div>
     </div>
