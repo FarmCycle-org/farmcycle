@@ -4,10 +4,22 @@ import { createContext, useState, useEffect } from "react";
 export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
-  const [auth, setAuth] = useState({
-    token: localStorage.getItem("token") || "",
-    user: JSON.parse(localStorage.getItem("user")) || null,
-  });
+  const [auth, setAuth] = useState(() => {
+  let token = localStorage.getItem("token") || "";
+  let user = null;
+
+  try {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      user = JSON.parse(storedUser);
+    }
+  } catch (err) {
+    console.error("Failed to parse user from localStorage:", err);
+  }
+
+  return { token, user };
+});
+
 
   const login = (data) => {
     localStorage.setItem("token", data.token);
