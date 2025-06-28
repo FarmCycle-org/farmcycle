@@ -1,0 +1,40 @@
+const mongoose = require("mongoose");
+
+const wasteSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: [true, "Please add a title"],
+    },
+    description: {
+      type: String,
+    },
+    quantity: {
+      type: String,
+    },
+    location: {
+      // GeoJSON Point
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        required: true,
+      },
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+wasteSchema.index({ location: "2dsphere" });
+
+module.exports = mongoose.model("Waste", wasteSchema);
