@@ -177,25 +177,6 @@ exports.confirmCollected = async (req, res) => {
   }
 };
 
-// Get all claims across wastes created by this provider
-exports.getClaimsOnMyListings = async (req, res) => {
-  try {
-    // First, get all waste IDs created by this provider
-    const myWastes = await Waste.find({ createdBy: req.user.id }).select("_id");
-
-    const wasteIds = myWastes.map((w) => w._id);
-
-    // Fetch claims on those wastes
-    const claims = await Claim.find({ waste: { $in: wasteIds } })
-      .populate("waste", "title")
-      .populate("collector", "name email");
-
-    res.json(claims);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error fetching claims on your listings" });
-  }
-};
 
 // Cancel a claim (collector)
 exports.cancelClaim = async (req, res) => {
