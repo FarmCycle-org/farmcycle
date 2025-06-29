@@ -1,5 +1,6 @@
 const Claim = require("../models/Claim");
 const Waste = require("../models/Waste");
+const Notification = require("../models/Notification");
 
 // Create a claim
 exports.createClaim = async (req, res) => {
@@ -7,15 +8,31 @@ exports.createClaim = async (req, res) => {
     const { message } = req.body;
     const wasteId = req.params.id;
 
-    const waste = await Waste.findById(wasteId);
+    const waste = await Waste.findById(wasteId).populate("createdBy");
     if (!waste) {
       return res.status(404).json({ message: "Waste listing not found" });
     }
 
+    const existingClaim = await Claim.findOne({
+      waste: wasteId,
+      collector: req.user.id,
+      status: "pending"
+    });
+
+    if (existingClaim) {
+      return res.status(400).json({ message: "You have already claimed this waste" });
+    }
+    
     const claim = await Claim.create({
       waste: wasteId,
       collector: req.user.id,
       message,
+    });
+
+    // Create notification for the provider
+    await Notification.create({
+    recipient: waste.createdBy._id,
+    message: `New claim for your listing "${waste.title}".`,
     });
 
     res.status(201).json(claim);
@@ -58,7 +75,7 @@ exports.getMyClaims = async (req, res) => {
 exports.approveClaim = async (req, res) => {
   try {
     const claim = await Claim.findById(req.params.id).populate("waste");
-    console.log("Fetched claim:", claim);
+    // console.log("Fetched claim:", claim);
 
     if (!claim) {
       return res.status(404).json({ message: "Claim not found" });
@@ -73,10 +90,12 @@ exports.approveClaim = async (req, res) => {
     claim.status = "accepted";
     await claim.save();
 
-    // Update waste status
-    // claim.waste.status = "claimed";
-    // await claim.waste.save();
-
+    // Create notification
+    await Notification.create({
+      recipient: claim.collector,
+      message: `Your claim for "${claim.waste.title}" has been approved.`,
+    });
+  
     res.json({ message: "Claim approved successfully" });
   } catch (err) {
     console.error(err);
@@ -100,6 +119,11 @@ exports.rejectClaim = async (req, res) => {
 
     claim.status = "rejected";
     await claim.save();
+
+    await Notification.create({
+      recipient: claim.collector,
+      message: `Your claim for "${claim.waste.title}" has been rejected.`,
+    });
 
     res.json({ message: "Claim rejected successfully" });
   } catch (err) {
