@@ -13,9 +13,6 @@ router.get("/my/claims", protect, claimController.getMyClaims);
 // Get all claims on provider's listings
 router.get("/provider/claims", protect, claimController.getClaimsForProvider);
 
-// Get all claims across my waste listings (Provider)
-router.get("/my/listing-claims", protect, claimController.getClaimsOnMyListings);
-
 //  claims seen by provider on their listing
 router.get("/:id/claims", protect, claimController.getClaimsForWaste);
 

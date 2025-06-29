@@ -30,7 +30,9 @@ const Browse = () => {
           }
         );
 
-        const claimedIds = claimsRes.data.map((claim) => claim.waste._id);
+        const claimedIds = claimsRes.data
+        .filter((claim) => claim.waste && claim.waste._id)
+        .map((claim) => claim.waste._id);
         setClaimedWasteIds(claimedIds);
       } catch (err) {
         console.error("Error fetching data:", err);
