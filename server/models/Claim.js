@@ -21,6 +21,10 @@ const claimSchema = new mongoose.Schema(
       enum: ["pending", "accepted", "rejected"],
       default: "pending",
     },
+    collected: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
