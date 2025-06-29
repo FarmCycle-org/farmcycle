@@ -10,6 +10,9 @@ router.post("/:id/claim", protect, claimController.createClaim);
 // Get my claims (collector)
 router.get("/my/claims", protect, claimController.getMyClaims);
 
+// Get all claims on provider's listings
+router.get("/provider/claims", protect, claimController.getClaimsForProvider);
+
 //  claims seen by provider on their listing
 router.get("/:id/claims", protect, claimController.getClaimsForWaste);
 

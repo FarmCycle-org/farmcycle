@@ -9,6 +9,9 @@ router.post("/", protect, wasteController.createWaste);
 // Get all waste
 router.get("/", wasteController.getAllWaste);
 
+// Get waste listings by the logged-in provider
+router.get("/my", protect, wasteController.getMyWaste);
+
 // Get waste by ID
 router.get("/:id", wasteController.getWasteById);
 

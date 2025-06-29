@@ -52,6 +52,27 @@ exports.getMyClaims = async (req, res) => {
     res.status(500).json({ message: "Server error fetching my claims" });
   }
 };
+
+exports.getClaimsForProvider = async (req, res) => {
+  try {
+    console.log("Fetching claims for provider:", req.user);
+    // Find all waste listings created by this provider
+    const wastes = await Waste.find({ createdBy: req.user.id }).select("_id");
+
+    const wasteIds = wastes.map((w) => w._id);
+
+    // Get all claims for those listings
+    const claims = await Claim.find({ waste: { $in: wasteIds } })
+      .populate("collector", "name email")
+      .populate("waste", "title");
+
+    res.json(claims);
+  } catch (err) {
+    console.error("Error fetching provider claims:", err);
+    res.status(500).json({ message: "Server error fetching claims" });
+  }
+};
+
  
 //Approve/Reject claims
 // Approve a claim
