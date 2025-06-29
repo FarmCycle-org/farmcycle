@@ -13,11 +13,20 @@ router.get("/my/claims", protect, claimController.getMyClaims);
 // Get all claims on provider's listings
 router.get("/provider/claims", protect, claimController.getClaimsForProvider);
 
+// Get all claims across my waste listings (Provider)
+router.get("/my/listing-claims", protect, claimController.getClaimsOnMyListings);
+
 //  claims seen by provider on their listing
 router.get("/:id/claims", protect, claimController.getClaimsForWaste);
 
+// approve/reject claim
 router.put("/:id/approve", protect, claimController.approveClaim);
-
 router.put("/:id/reject", protect, claimController.rejectClaim);
+
+//collector confirms collection
+router.put("/:id/collected", protect, claimController.confirmCollected);
+
+// Cancel a claim (collector can delete their own pending claim)
+router.delete("/:id/cancel", protect, claimController.cancelClaim);
 
 module.exports = router;

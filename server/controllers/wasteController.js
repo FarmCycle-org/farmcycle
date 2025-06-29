@@ -72,3 +72,40 @@ exports.deleteWaste = async (req, res) => {
     res.status(500).json({ message: "Server error deleting waste" });
   }
 };
+
+// Mark waste as collected
+exports.markAsCollected = async (req, res) => {
+  try {
+    const waste = await Waste.findById(req.params.id);
+
+    if (!waste) {
+      return res.status(404).json({ message: "Waste listing not found" });
+    }
+
+    // Ensure only the provider can mark as collected
+    if (waste.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Not authorized to mark this as collected" });
+    }
+
+    waste.status = "collected";
+    await waste.save();
+
+    res.json({ message: "Waste marked as collected successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error marking waste as collected" });
+  }
+};
+
+// Get all wastes created by the logged-in provider ,latest first
+exports.getMyListings = async (req, res) => {
+  try {
+    const listings = await Waste.find({ createdBy: req.user.id }).sort({ createdAt: -1 });
+    res.json(listings);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error fetching your listings" });
+  }
+};
+
+

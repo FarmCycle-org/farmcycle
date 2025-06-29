@@ -29,6 +29,11 @@ const wasteSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    status: {
+    type: String,
+    enum: ["available", "collected"],
+    default: "available",
+  },
   },
   {
     timestamps: true,
