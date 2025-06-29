@@ -30,6 +30,16 @@ exports.getAllWaste = async (req, res) => {
   }
 };
 
+exports.getMyWaste = async (req, res) => {
+  try {
+    const listings = await Waste.find({ createdBy: req.user.id });
+    res.json(listings);
+  } catch (err) {
+    console.error("Error fetching provider's listings:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 // Get single waste listing
 exports.getWasteById = async (req, res) => {
   try {

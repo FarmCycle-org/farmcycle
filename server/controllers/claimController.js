@@ -69,6 +69,27 @@ exports.getMyClaims = async (req, res) => {
     res.status(500).json({ message: "Server error fetching my claims" });
   }
 };
+
+exports.getClaimsForProvider = async (req, res) => {
+  try {
+    console.log("Fetching claims for provider:", req.user);
+    // Find all waste listings created by this provider
+    const wastes = await Waste.find({ createdBy: req.user.id }).select("_id");
+
+    const wasteIds = wastes.map((w) => w._id);
+
+    // Get all claims for those listings
+    const claims = await Claim.find({ waste: { $in: wasteIds } })
+      .populate("collector", "name email")
+      .populate("waste", "title");
+
+    res.json(claims);
+  } catch (err) {
+    console.error("Error fetching provider claims:", err);
+    res.status(500).json({ message: "Server error fetching claims" });
+  }
+};
+
  
 //Approve/Reject claims
 // Approve a claim
@@ -129,28 +150,6 @@ exports.rejectClaim = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error rejecting claim" });
-  }
-};
-
-// Get ALL claims received on my waste listings (provider)
-exports.getClaimsForMyListings = async (req, res) => {
-  try {
-    // Find all claims where the waste belongs to the logged-in provider
-    const claims = await Claim.find()
-      .populate({
-        path: "waste",
-        match: { createdBy: req.user.id },  // only wastes created by me
-        select: "title description",
-      })
-      .populate("collector", "name email");
-
-    // Remove any claims where waste didn't match (i.e., was null)
-    const filteredClaims = claims.filter(claim => claim.waste !== null);
-
-    res.json(filteredClaims);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error fetching claims for your listings" });
   }
 };
 

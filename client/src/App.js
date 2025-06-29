@@ -7,7 +7,7 @@ import Login from "./pages/Login.js";
 
 // Provider pages
 import ProviderDashboard from "./pages/provider/ProviderDashboard";
-import AddWaste from "./pages/provider/AddWaste";
+import MyListings from "./pages/provider/MyListings";
 import Requests from "./pages/provider/Requests";
 import ProviderProfile from "./pages/provider/ProviderProfile";
 
@@ -16,8 +16,13 @@ import CollectorDashboard from "./pages/collector/CollectorDashboard";
 import Browse from "./pages/collector/Browse";
 import MyRequests from "./pages/collector/MyRequests";
 import CollectorProfile from "./pages/collector/CollectorProfile";
+import { useContext } from "react";
+import { AuthContext } from "./context/AuthContext.js";
 
 function App() {
+
+  const { loading } = useContext(AuthContext);
+  if (loading) return <div>Loading...</div>; // Optional fallback
   return (
     <Router>
       <Routes>
@@ -27,7 +32,7 @@ function App() {
         {/* Provider Protected routes */}
         <Route element={<ProtectedRoute allowedRoles={["provider"]} />}>
           <Route path="/provider/dashboard" element={<ProviderDashboard />} />
-          <Route path="/provider/add-waste" element={<AddWaste />} />
+          <Route path="/provider/my-listings" element={<MyListings />} />
           <Route path="/provider/requests" element={<Requests />} />
           <Route path="/provider/profile" element={<ProviderProfile />} />
         </Route>
