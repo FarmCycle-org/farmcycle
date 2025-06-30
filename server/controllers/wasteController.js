@@ -9,6 +9,7 @@ exports.createWaste = async (req, res) => {
       title: req.body.title,
       description: req.body.description,
       quantity: req.body.quantity,
+      wasteType: req.body.wasteType,
       location: req.body.location,
       createdBy: req.user.id, // req.user populated by protect middleware
     });
@@ -27,6 +28,16 @@ exports.getAllWaste = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error fetching waste" });
+  }
+};
+
+exports.getMyWaste = async (req, res) => {
+  try {
+    const listings = await Waste.find({ createdBy: req.user.id });
+    res.json(listings);
+  } catch (err) {
+    console.error("Error fetching provider's listings:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 

@@ -17,7 +17,7 @@ const ProviderNavbar = () => {
       <h1 className="text-xl font-bold">🌿 FarmCycle</h1>
       <ul className="flex space-x-6 text-lg">
         <li><Link to="/provider/dashboard" className="hover:underline">Dashboard</Link></li>
-        <li><Link to="/provider/add-waste" className="hover:underline">Add Waste</Link></li>
+        <li><Link to="/provider/my-listings" className="hover:underline">My Listings</Link></li>
         <li><Link to="/provider/requests" className="hover:underline">Requests</Link></li>
         <li><Link to="/provider/profile" className="hover:underline">Profile</Link></li>
       </ul>

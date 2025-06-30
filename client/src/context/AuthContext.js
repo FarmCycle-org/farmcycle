@@ -1,25 +1,28 @@
-//store the logged-in user and token here.
 import { createContext, useState, useEffect } from "react";
 
 export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
-  const [auth, setAuth] = useState(() => {
-  let token = localStorage.getItem("token") || "";
-  let user = null;
+  const [auth, setAuth] = useState({ token: "", user: null });
+  const [loading, setLoading] = useState(true);
 
-  try {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      user = JSON.parse(storedUser);
+  useEffect(() => {
+    // Restore from localStorage once on mount
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+
+    if (token && user) {
+      try {
+        setAuth({
+          token,
+          user: JSON.parse(user),
+        });
+      } catch (err) {
+        console.error("Failed to parse user:", err);
+      }
     }
-  } catch (err) {
-    console.error("Failed to parse user from localStorage:", err);
-  }
-
-  return { token, user };
-});
-
+    setLoading(false); // Done loading, allow rendering
+  }, []);
 
   const login = (data) => {
     localStorage.setItem("token", data.token);
@@ -33,8 +36,8 @@ const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ auth, login, logout }}>
-      {children}
+    <AuthContext.Provider value={{ auth, login, logout, loading }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
