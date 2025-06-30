@@ -61,7 +61,7 @@ exports.getMyClaims = async (req, res) => {
   try {
     console.log("Authenticated user:", req.user);
     const claims = await Claim.find({ collector: req.user.id })
-      .populate("waste", "title description");
+      .populate("waste");
 
     res.json(claims);
   } catch (err) {
@@ -156,19 +156,24 @@ exports.rejectClaim = async (req, res) => {
 // Collector confirms collection
 exports.confirmCollected = async (req, res) => {
   try {
-    const claim = await Claim.findById(req.params.id).populate("collector");
+    const claim = await Claim.findById(req.params.id).populate("collector").populate("waste");
 
     if (!claim) {
       return res.status(404).json({ message: "Claim not found" });
     }
 
-    // Ensure only the collector who owns this claim can confirm
     if (claim.collector._id.toString() !== req.user.id) {
       return res.status(403).json({ message: "Not authorized to confirm this claim" });
     }
 
+    // Update both claim and waste
     claim.collected = true;
     await claim.save();
+
+    if (claim.waste) {
+      claim.waste.status = "collected";
+      await claim.waste.save();
+    }
 
     res.json({ message: "Collection confirmed successfully" });
   } catch (err) {
@@ -176,7 +181,6 @@ exports.confirmCollected = async (req, res) => {
     res.status(500).json({ message: "Server error confirming collection" });
   }
 };
-
 
 // Cancel a claim (collector)
 exports.cancelClaim = async (req, res) => {

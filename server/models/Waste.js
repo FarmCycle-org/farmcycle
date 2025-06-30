@@ -12,6 +12,11 @@ const wasteSchema = new mongoose.Schema(
     quantity: {
       type: String,
     },
+    wasteType: {
+      type: String,
+      enum: ["organic", "plastic", "metal", "paper", "e-waste", "other"],
+      required: true,
+    },
     location: {
       // GeoJSON Point
       type: {
