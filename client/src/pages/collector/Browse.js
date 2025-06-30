@@ -93,6 +93,7 @@ const Browse = () => {
                 <h2 className="text-xl font-bold text-green-800">{waste.title}</h2>
                 <p className="text-gray-600 mt-1">{waste.description || "No description provided."}</p>
                 <p className="text-sm text-gray-500 mt-2">Quantity: {waste.quantity || "N/A"}</p>
+                <p className="text-sm text-gray-500 mt-2">Waste type: {waste.wasteType || "N/A"}</p>
                 {waste.location?.coordinates && (
                   <p className="text-sm text-gray-500">
                     Location: [{waste.location.coordinates[1].toFixed(4)}, {waste.location.coordinates[0].toFixed(4)}]
@@ -131,6 +132,7 @@ const Browse = () => {
             </h2>
             <p className="text-gray-600 mb-1">{selectedWaste.description || "No description provided."}</p>
             <p className="text-sm text-gray-500 mb-2">Quantity: {selectedWaste.quantity || "N/A"}</p>
+            <p className="text-sm text-gray-500 mb-2">Waste type: {selectedWaste.wasteType || "N/A"}</p>
             <div className="bg-gray-100 h-40 mb-3 flex items-center justify-center rounded">
               <span className="text-gray-500 text-sm">[Map preview placeholder]</span>
             </div>

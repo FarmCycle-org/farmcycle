@@ -9,6 +9,7 @@ exports.createWaste = async (req, res) => {
       title: req.body.title,
       description: req.body.description,
       quantity: req.body.quantity,
+      wasteType: req.body.wasteType,
       location: req.body.location,
       createdBy: req.user.id, // req.user populated by protect middleware
     });

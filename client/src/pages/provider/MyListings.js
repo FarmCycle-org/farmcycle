@@ -10,6 +10,7 @@ const MyListings = () => {
     title: "",
     description: "",
     quantity: "",
+    wasteType: "",
     latitude: "",
     longitude: "",
   });
@@ -47,18 +48,27 @@ const MyListings = () => {
   };
 
   const handleAddListing = async () => {
+
+    const { title, description, quantity, wasteType, latitude, longitude } = formData;
+
+    if (!wasteType) {
+      alert("Please select a waste type before submitting.");
+      return;
+    }
+
     try {
-      const { title, description, quantity, latitude, longitude } = formData;
       const newWaste = {
         title,
         description,
         quantity,
+        wasteType,
         location: {
           type: "Point",
           coordinates: [parseFloat(longitude), parseFloat(latitude)],
         },
       };
 
+      console.log("Submitting waste:", newWaste);
       const res = await axios.post("http://localhost:5000/api/waste", newWaste, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -71,6 +81,7 @@ const MyListings = () => {
         title: "",
         description: "",
         quantity: "",
+        wasteType: "",
         latitude: "",
         longitude: "",
       });
@@ -122,6 +133,7 @@ const MyListings = () => {
                 <h2 className="font-bold text-green-800">{waste.title}</h2>
                 <p className="text-gray-600">{waste.description}</p>
                 <p className="text-sm text-gray-500 mt-1">Quantity: {waste.quantity}</p>
+                <p className="text-sm text-gray-500 mt-1">Waste Type: {waste.wasteType}</p>
                 {waste.location?.coordinates && (
                   <p className="text-xs text-gray-400">
                     Location: [{waste.location.coordinates[1].toFixed(4)}, {waste.location.coordinates[0].toFixed(4)}]
@@ -176,6 +188,22 @@ const MyListings = () => {
                 onChange={handleInputChange}
                 className="w-full border px-3 py-2 rounded"
               />
+              <select
+                name="wasteType"
+                value={formData.wasteType}
+                onChange={handleInputChange}
+                className="w-full border px-3 py-2 rounded"
+                required
+              >
+                <option value="">Select Waste Type</option>
+                <option value="organic">Organic</option>
+                <option value="plastic">Plastic</option>
+                <option value="metal">Metal</option>
+                <option value="paper">Paper</option>
+                <option value="e-waste">E-Waste</option>
+                <option value="other">Other</option>
+              </select>
+              
               <div className="flex gap-2">
                 <input
                   type="number"
@@ -194,6 +222,7 @@ const MyListings = () => {
                   className="w-1/2 border px-3 py-2 rounded"
                 />
               </div>
+
               <button
                 onClick={handleAddListing}
                 className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
