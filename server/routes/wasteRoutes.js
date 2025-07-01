@@ -2,9 +2,13 @@ const express = require("express");
 const router = express.Router();
 const wasteController = require("../controllers/wasteController");
 const { protect } = require("../middleware/authMiddleware");
+const parser = require("../config/multer");
 
 // Create waste (provider only)
-router.post("/", protect, wasteController.createWaste);
+router.post("/", protect,parser.single("image"), wasteController.createWaste);
+
+//Edit waste
+router.put("/:id", protect,parser.single("image"), wasteController.updateWaste);
 
 // Get all waste
 router.get("/", wasteController.getAllWaste);

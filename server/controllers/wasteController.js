@@ -2,21 +2,83 @@
 
 const Waste = require("../models/Waste");
 
-//Create waste listing
+// //Create waste listing
 exports.createWaste = async (req, res) => {
   try {
+    // Validate latitude and longitude
+    if (!req.body.latitude || !req.body.longitude) {
+      return res.status(400).json({ message: "Latitude and longitude are required." });
+    }
     const waste = await Waste.create({
       title: req.body.title,
       description: req.body.description,
       quantity: req.body.quantity,
       wasteType: req.body.wasteType,
-      location: req.body.location,
+      location: {
+        type: "Point",
+        coordinates: [
+          parseFloat(req.body.longitude),
+          parseFloat(req.body.latitude)
+        ],
+      },
+      imageUrl: req.file?.path,
       createdBy: req.user.id, // req.user populated by protect middleware
     });
     res.status(201).json(waste);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error creating waste" });
+  }
+};
+
+//Update waste listing
+exports.updateWaste = async (req, res) => {
+  try {
+    const wasteId = req.params.id;
+
+    const waste = await Waste.findById(wasteId);
+    if (!waste) {
+      return res.status(404).json({ message: "Waste listing not found" });
+    }
+
+    if (waste.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Not authorized to edit this listing" });
+    }
+
+    // If wasteType is missing in DB and not provided in request, error out
+    if (!waste.wasteType && !req.body.wasteType) {
+      return res.status(400).json({ message: "wasteType is required since it's missing." });
+    }
+
+    if (req.body.title !== undefined) waste.title = req.body.title;
+    if (req.body.description !== undefined) waste.description = req.body.description;
+    if (req.body.quantity !== undefined) waste.quantity = req.body.quantity;
+    if (req.body.wasteType !== undefined) waste.wasteType = req.body.wasteType;
+    
+    // Update location if latitude and longitude are provided
+    if (req.body.latitude && req.body.longitude) {
+      waste.location = {
+        type: "Point",
+        coordinates: [
+          parseFloat(req.body.longitude),
+          parseFloat(req.body.latitude)
+        ]
+      };
+    }
+    // If new image uploaded, replace the URL
+    if (req.file && req.file.path) {
+      waste.imageUrl = req.file.path;
+    }
+
+    await waste.save();
+
+    res.json({
+      message: "Listing updated successfully",
+      waste,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message, stack: err.stack });
   }
 };
 
