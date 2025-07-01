@@ -11,6 +11,7 @@ const wasteRoutes = require("./routes/wasteRoutes");
 const claimRoutes = require("./routes/claimRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const userRoutes = require("./routes/userRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
 
 //dotenv.config();
 connectDB();
@@ -30,6 +31,8 @@ app.use("/api/waste", wasteRoutes);
 app.use("/api/claims", claimRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/reviews", reviewRoutes);
+
 
 // Centralized error handler
 app.use((err, req, res, next) => {

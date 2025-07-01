@@ -20,8 +20,12 @@ exports.updateMyProfile = async (req, res) => {
     const updates = {
       name: req.body.name,
       contact: req.body.contact,
-      organization: req.body.organization
+      // organization: req.body.organization
     };
+    //skip updating org if not provided
+    if (req.body.organization !== undefined) {
+      updates.organization = req.body.organization;
+    }
 
     const user = await User.findByIdAndUpdate(
       req.user.id,
