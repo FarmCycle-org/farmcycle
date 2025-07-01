@@ -11,8 +11,9 @@ const Register = () => {
     name: "",
     email: "",
     password: "",
-    contact: "",
     role: "provider",
+    contact: "",
+    organization: ""
   });
 
   const [loading, setLoading] = useState(false);
@@ -108,6 +109,33 @@ const Register = () => {
             <option value="provider">I Have Waste (Provider)</option>
             <option value="collector">I Need Waste (Collector)</option>
           </select>
+
+          <label className="block mb-1 font-medium text-gray-700">Organization Type <span className="text-red-500">*</span></label>
+          <select
+            name="organization"
+            value={formData.organization}
+            onChange={handleChange}
+            required
+            className="w-full border px-3 py-2 rounded mb-4"
+          >
+            <option value="">Select Organization Type</option>
+            <option value="restaurant">Restaurant</option>
+            <option value="hotel">Hotel</option>
+            <option value="catering service">Catering Service</option>
+            <option value="school/university">School / University</option>
+            <option value="corporate office">Corporate Office</option>
+            <option value="solo">Solo</option>
+            <option value="household">Household</option>
+            <option value="grocery store">Grocery Store</option>
+            <option value="vendor">Vendor</option>
+            <option value="factory">Factory</option>
+            <option value="farm">Farm</option>
+            <option value="recycling center">Recycling Center</option>
+            <option value="composting unit">Composting Unit</option>
+            <option value="environmental NGO">Environmental NGO</option>
+          </select>
+
+
 
           <button
             type="submit"

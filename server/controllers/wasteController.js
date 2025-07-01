@@ -14,6 +14,9 @@ exports.createWaste = async (req, res) => {
       description: req.body.description,
       quantity: req.body.quantity,
       wasteType: req.body.wasteType,
+
+      organization: req.user.organization, // req.user populated by protect middleware
+
       location: {
         type: "Point",
         coordinates: [
@@ -23,6 +26,7 @@ exports.createWaste = async (req, res) => {
       },
       imageUrl: req.file?.path,
       createdBy: req.user.id, // req.user populated by protect middleware
+
     });
     res.status(201).json(waste);
   } catch (err) {
@@ -85,7 +89,7 @@ exports.updateWaste = async (req, res) => {
 // Get all waste listings
 exports.getAllWaste = async (req, res) => {
   try {
-    const waste = await Waste.find().populate("createdBy", "name email role");
+    const waste = await Waste.find().populate("createdBy", "name email role organization");
     res.json(waste);
   } catch (err) {
     console.error(err);

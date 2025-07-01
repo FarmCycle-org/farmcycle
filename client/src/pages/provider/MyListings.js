@@ -132,8 +132,13 @@ const MyListings = () => {
               <div key={waste._id} className="bg-white p-4 rounded shadow">
                 <h2 className="font-bold text-green-800">{waste.title}</h2>
                 <p className="text-gray-600">{waste.description}</p>
-                <p className="text-sm text-gray-500 mt-1">Quantity: {waste.quantity}</p>
-                <p className="text-sm text-gray-500 mt-1">Waste Type: {waste.wasteType}</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Quantity: <strong>{waste.quantity ? String(waste.quantity).toUpperCase() : "N/A"}</strong>
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Waste Type: <strong>{waste.wasteType ? waste.wasteType.toUpperCase() : "N/A"}</strong>
+                </p>
+
                 {waste.location?.coordinates && (
                   <p className="text-xs text-gray-400">
                     Location: [{waste.location.coordinates[1].toFixed(4)}, {waste.location.coordinates[0].toFixed(4)}]
