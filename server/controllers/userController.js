@@ -20,6 +20,7 @@ exports.updateMyProfile = async (req, res) => {
     const updates = {
       name: req.body.name,
       contact: req.body.contact,
+      organization: req.body.organization
     };
 
     const user = await User.findByIdAndUpdate(

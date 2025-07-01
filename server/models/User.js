@@ -8,6 +8,8 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { type: String, enum: ['provider', 'collector'], required: true },
   contact: String,
+  organization: {type: String, enum: ['restaurant', 'hotel','catering service', 'school/university','corporate office', 'solo', 'household',
+     'grocery store', 'vendor', 'factory', 'farm', 'recycling center', 'composting unit', 'environmental NGO'], default: 'solo', required: true} ,
   profilePictureUrl: { 
     type: String,
   },

@@ -92,13 +92,17 @@ const Browse = () => {
               >
                 <h2 className="text-xl font-bold text-green-800">{waste.title}</h2>
                 <p className="text-gray-600 mt-1">{waste.description || "No description provided."}</p>
-                <p className="text-sm text-gray-500 mt-2">Quantity: {waste.quantity || "N/A"}</p>
-                <p className="text-sm text-gray-500 mt-2">Waste type: {waste.wasteType || "N/A"}</p>
+                <p className="text-sm text-gray-500 mt-2">Quantity: <strong>{waste.quantity || "N/A"}</strong></p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Waste type: <strong>{waste.wasteType ? waste.wasteType.toUpperCase() : "N/A"}</strong>
+                </p>
+                <p className="text-sm text-gray-500 mt-2">Organization: <strong>{waste.createdBy?.organization.toUpperCase() || "N/A"}</strong></p>
                 {waste.location?.coordinates && (
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 mt-2">
                     Location: [{waste.location.coordinates[1].toFixed(4)}, {waste.location.coordinates[0].toFixed(4)}]
                   </p>
                 )}
+                
                 <p className="text-xs text-gray-400 mt-2">
                   Posted on: {new Date(waste.createdAt).toLocaleDateString()}
                 </p>

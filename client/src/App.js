@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute.js";
 
+import HomePage from "./pages/Home.js";
+
 // Auth pages
 import Register from "./pages/Register.js";
 import Login from "./pages/Login.js";
@@ -26,6 +28,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<HomePage />}/>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
 

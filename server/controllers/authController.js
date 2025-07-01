@@ -4,7 +4,7 @@ const User = require("../models/User");
 
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role, contact, location } = req.body; //// Destructure location here too
+    const { name, email, password, role, contact, organization, location } = req.body; //// Destructure location here too
 
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: "User already exists" });
@@ -18,6 +18,7 @@ const registerUser = async (req, res) => {
       password: hashedPassword,
       role,
       contact,
+      organization
     };
     // ONLY add the location field if it's provided AND has coordinates
     if (location && location.type === 'Point' && Array.isArray(location.coordinates) && location.coordinates.length === 2) {
