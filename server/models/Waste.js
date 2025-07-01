@@ -34,6 +34,7 @@ const wasteSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    imageUrl: { type: String, required: true },
     status: {
     type: String,
     enum: ["available", "collected"],

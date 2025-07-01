@@ -31,6 +31,24 @@ app.use("/api/claims", claimRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/users", userRoutes);
 
+// Centralized error handler
+app.use((err, req, res, next) => {
+  console.error("Error handler caught:", err);
+
+  // Multer file upload errors
+  if (err.name === "MulterError") {
+    return res.status(400).json({ message: err.message });
+  }
+
+  // Cloudinary upload errors
+  if (err.http_code && err.http_code >= 400) {
+    return res.status(err.http_code).json({ message: err.message });
+  }
+
+  // Other errors
+  res.status(500).json({ message: err.message || "Internal Server Error" });
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
