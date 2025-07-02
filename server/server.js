@@ -12,6 +12,7 @@ const claimRoutes = require("./routes/claimRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const userRoutes = require("./routes/userRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
+const pickupRoutes = require("./routes/pickupRoutes");
 
 //dotenv.config();
 connectDB();
@@ -32,6 +33,7 @@ app.use("/api/claims", claimRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/pickups", pickupRoutes);
 
 
 // Centralized error handler
