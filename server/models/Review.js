@@ -2,6 +2,17 @@ const mongoose = require("mongoose");
 
 const reviewSchema = new mongoose.Schema(
   {
+    pickup: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Pickup",
+      required: true,
+      unique: true, // One review per pickup
+    },
+    waste: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Waste",
+      required: true,
+    },
     provider: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
