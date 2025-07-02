@@ -16,6 +16,9 @@ const MyListings = () => {
   });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [wasteToDelete, setWasteToDelete] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editWaste, setEditWaste] = useState(null);
+
 
 
   const token = localStorage.getItem("token");
@@ -48,48 +51,63 @@ const MyListings = () => {
   };
 
   const handleAddListing = async () => {
+  const { title, description, quantity, wasteType, latitude, longitude, image } = formData;
 
-    const { title, description, quantity, wasteType, latitude, longitude } = formData;
+  if (!wasteType) {
+    alert("Please select a waste type before submitting.");
+    return;
+  }
 
-    if (!wasteType) {
-      alert("Please select a waste type before submitting.");
-      return;
-    }
+  if (!image) {
+    alert("Please upload an image.");
+    return;
+  }
 
-    try {
-      const newWaste = {
-        title,
-        description,
-        quantity,
-        wasteType,
-        location: {
-          type: "Point",
-          coordinates: [parseFloat(longitude), parseFloat(latitude)],
-        },
-      };
+  try {
+    const newWaste = {
+      title,
+      description,
+      quantity,
+      wasteType,
+      location: {
+        type: "Point",
+        coordinates: [parseFloat(longitude), parseFloat(latitude)],
+      },
+    };
 
-      console.log("Submitting waste:", newWaste);
-      const res = await axios.post("http://localhost:5000/api/waste", newWaste, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    const formDataToSend = new FormData();
+    formDataToSend.append("title", newWaste.title);
+    formDataToSend.append("description", newWaste.description);
+    formDataToSend.append("quantity", newWaste.quantity);
+    formDataToSend.append("wasteType", newWaste.wasteType);
+    formDataToSend.append("latitude", latitude);
+    formDataToSend.append("longitude", longitude);
+    formDataToSend.append("image", image);
 
-      setWasteItems((prev) => [...prev, res.data]);
-      setShowModal(false);
-      setFormData({
-        title: "",
-        description: "",
-        quantity: "",
-        wasteType: "",
-        latitude: "",
-        longitude: "",
-      });
-    } catch (err) {
-      console.error("Error adding listing:", err);
-      alert("Failed to add listing.");
-    }
-  };
+    const res = await axios.post("http://localhost:5000/api/waste", formDataToSend, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    setWasteItems((prev) => [...prev, res.data]);
+    setShowModal(false);
+    setFormData({
+      title: "",
+      description: "",
+      quantity: "",
+      wasteType: "",
+      latitude: "",
+      longitude: "",
+      image: null,
+    });
+  } catch (err) {
+    console.error("Error adding listing:", err);
+    alert("Failed to add listing.");
+  }
+};
+
 
   const handleDelete = async (id) => {
   const confirmDelete = window.confirm("Are you sure you want to delete this listing?");
@@ -152,6 +170,16 @@ const MyListings = () => {
                 >
                   Delete
                 </button>
+                <button
+                  onClick={() => {
+                    setEditWaste(waste); // open edit modal with this waste
+                    setShowEditModal(true);
+                  }}
+                  className="mt-2 ml-2 px-4 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md"
+                >
+                  Edit
+                </button>
+
 
               </div>
             ))}
@@ -208,7 +236,7 @@ const MyListings = () => {
                 <option value="e-waste">E-Waste</option>
                 <option value="other">Other</option>
               </select>
-              
+
               <div className="flex gap-2">
                 <input
                   type="number"
@@ -228,6 +256,15 @@ const MyListings = () => {
                 />
               </div>
 
+              {/* Image Upload */}
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={(e) => setFormData((prev) => ({ ...prev, image: e.target.files[0] }))}
+                className="w-full border px-3 py-2 rounded"
+              />
+
               <button
                 onClick={handleAddListing}
                 className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
@@ -238,6 +275,7 @@ const MyListings = () => {
           </div>
         </div>
       )}
+
       {showDeleteModal && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
         <div className="bg-white p-6 rounded-xl w-full max-w-sm shadow-lg relative">
@@ -269,6 +307,132 @@ const MyListings = () => {
         </div>
       </div>
     )}
+    {showEditModal && editWaste && (
+      <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg relative">
+          <h2 className="text-xl font-semibold text-green-700 mb-4">Edit Waste Listing</h2>
+
+          <button
+            className="absolute top-2 right-3 text-gray-500 text-xl"
+            onClick={() => {
+              setShowEditModal(false);
+              setEditWaste(null);
+            }}
+          >
+            &times;
+          </button>
+
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+
+              const formData = new FormData();
+              formData.append("title", editWaste.title || "");
+              formData.append("description", editWaste.description || "");
+              formData.append("quantity", editWaste.quantity || "");
+              formData.append("wasteType", editWaste.wasteType || "");
+              if (editWaste.latitude && editWaste.longitude) {
+                formData.append("latitude", editWaste.latitude);
+                formData.append("longitude", editWaste.longitude);
+              }
+              if (editWaste.imageFile) {
+                formData.append("image", editWaste.imageFile);
+              }
+
+              try {
+                const token = localStorage.getItem("token");
+                const res = await axios.put(
+                  `http://localhost:5000/api/waste/${editWaste._id}`,
+                  formData,
+                  {
+                    headers: {
+                      "Content-Type": "multipart/form-data",
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
+
+                alert("Listing updated!");
+                // Refresh listings or update locally
+                const updated = res.data.waste;
+                setWasteItems((prev) =>
+                  prev.map((w) => (w._id === updated._id ? updated : w))
+                );
+                setShowEditModal(false);
+                setEditWaste(null);
+              } catch (err) {
+                console.error("Error updating waste:", err);
+
+                // Check for specific error message from backend
+                const message =
+                  err.response?.data?.message || "Failed to update listing. Please try again.";
+
+                alert(message);
+              }
+            }}
+          >
+            <input
+              className="block w-full border px-3 py-2 rounded mb-2"
+              placeholder="Title"
+              value={editWaste.title}
+              onChange={(e) =>
+                setEditWaste((prev) => ({ ...prev, title: e.target.value }))
+              }
+            />
+            <textarea
+              className="block w-full border px-3 py-2 rounded mb-2"
+              placeholder="Description"
+              value={editWaste.description}
+              onChange={(e) =>
+                setEditWaste((prev) => ({ ...prev, description: e.target.value }))
+              }
+            />
+            <input
+              className="block w-full border px-3 py-2 rounded mb-2"
+              placeholder="Quantity"
+              value={editWaste.quantity}
+              onChange={(e) =>
+                setEditWaste((prev) => ({ ...prev, quantity: e.target.value }))
+              }
+            />
+            <select
+              className="block w-full border px-3 py-2 rounded mb-2"
+              value={editWaste.wasteType}
+              onChange={(e) =>
+                setEditWaste((prev) => ({ ...prev, wasteType: e.target.value }))
+              }
+            >
+              <option value="">Select Waste Type</option>
+              <option value="organic">Organic</option>
+              <option value="plastic">Plastic</option>
+              <option value="metal">Metal</option>
+              <option value="paper">Paper</option>
+              <option value="e-waste">E-Waste</option>
+              <option value="other">Other</option>
+            </select>
+
+            <input
+              type="file"
+              className="block mb-4"
+              onChange={(e) =>
+                setEditWaste((prev) => ({
+                  ...prev,
+                  imageFile: e.target.files[0],
+                }))
+              }
+            />
+
+            <button
+              type="submit"
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded"
+            >
+              Save Changes
+            </button>
+          </form>
+        </div>
+      </div>
+    )}
+
 
     </>
   );
