@@ -70,9 +70,13 @@ exports.updateWaste = async (req, res) => {
       };
     }
     // If new image uploaded, replace the URL
+  
     if (req.file && req.file.path) {
       waste.imageUrl = req.file.path;
+    } else if (!waste.imageUrl) {
+      return res.status(400).json({ message: "Image is required for new listings." });
     }
+
 
     await waste.save();
 
