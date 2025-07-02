@@ -1,32 +1,45 @@
+const mongoose = require("mongoose");
 const Review = require("../models/Review");
-const User = require("../models/User");
+const Pickup = require("../models/Pickup");
 
 // Create a review
 exports.createReview = async (req, res) => {
   try {
-    const { providerId, rating, comment } = req.body;
+    const { pickupId, rating, comment } = req.body;
 
-    if (!providerId || !rating) {
-      return res.status(400).json({ message: "providerId and rating are required" });
+    if (!pickupId || !rating) {
+      return res.status(400).json({ message: "pickupId and rating are required" });
     }
 
-    // Ensure provider exists
-    const provider = await User.findById(providerId);
-    if (!provider) {
-      return res.status(404).json({ message: "Provider not found" });
+    // Find the pickup
+    const pickup = await Pickup.findById(pickupId).populate("waste");
+    if (!pickup) {
+      return res.status(404).json({ message: "Pickup not found" });
     }
-
-    // Prevent duplicate reviews by the same collector
-    const existingReview = await Review.findOne({
-      provider: providerId,
-      collector: req.user.id,
-    });
+    // Ensure this pickup belongs to the logged-in collector
+    if (pickup.collector.toString() !== req.user.id) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to review this pickup" });
+    }
+    // Ensure pickup is completed
+    if (pickup.status !== "completed") {
+      return res
+        .status(400)
+        .json({ message: "You can only review after pickup is completed" });
+    }
+    // Prevent duplicate review for this pickup
+    const existingReview = await Review.findOne({ pickup: pickupId });
     if (existingReview) {
-      return res.status(400).json({ message: "You have already reviewed this provider" });
+      return res
+        .status(400)
+        .json({ message: "You have already reviewed this pickup" });
     }
 
     const review = await Review.create({
-      provider: providerId,
+      pickup: pickup._id,
+      waste: pickup.waste._id,
+      provider: pickup.provider,
       collector: req.user.id,
       rating,
       comment,
@@ -45,6 +58,7 @@ exports.getReviewsForProvider = async (req, res) => {
     const providerId = req.params.id;
     const reviews = await Review.find({ provider: providerId })
       .populate("collector", "name email")
+      .populate("waste", "title")
       .sort({ createdAt: -1 });
 
     res.json(reviews);
@@ -102,3 +116,34 @@ exports.deleteReview = async (req, res) => {
     res.status(500).json({ message: "Error deleting review" });
   }
 };
+
+//compute average rating 
+exports.getAverageRatingForProvider = async (req, res) => {
+  try {
+    const providerId = req.params.id;
+
+    const result = await Review.aggregate([
+      { $match: { provider: new mongoose.Types.ObjectId(providerId) } },
+      {
+        $group: {
+          _id: "$provider",
+          avgRating: { $avg: "$rating" },
+          numReviews: { $sum: 1 },
+        },
+      },
+    ]);
+
+    if (result.length === 0) {
+      return res.json({ avgRating: null, numReviews: 0 });
+    }
+
+    res.json({
+      avgRating: result[0].avgRating,
+      numReviews: result[0].numReviews,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error calculating average rating" });
+  }
+};
+
