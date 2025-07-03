@@ -12,4 +12,7 @@ router.put("/:id/complete", protect, pickupController.completePickup);
 // (Optional) Get all pickups for logged-in user
 router.get("/my", protect, pickupController.getMyPickups);
 
+//get pickup history
+router.get("/history", protect, pickupController.getMyPickupHistory);
+
 module.exports = router;
