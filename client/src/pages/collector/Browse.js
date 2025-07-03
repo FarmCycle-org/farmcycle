@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import CollectorNavbar from "../../components/CollectorNavbar";
 import axios from "axios";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import "leaflet-fullscreen";
+import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
+
+
 
 const Browse = () => {
   const [wasteItems, setWasteItems] = useState([]);
@@ -77,6 +84,13 @@ useEffect(() => {
 
   if (loading) return <div className="text-center mt-10 text-lg">Loading waste items...</div>;
   if (error) return <div className="text-center mt-10 text-red-600">{error}</div>;
+
+  const pinIcon = new L.Icon({
+    iconUrl: "/pin-location.png", // if in public folder
+    iconSize: [42, 42],
+    iconAnchor: [15, 42],
+    popupAnchor: [0, -40],
+  });  
 
   return (
     <>
@@ -176,16 +190,53 @@ useEffect(() => {
                 Listed By: <strong>{selectedWaste.createdBy?.name || "N/A"}</strong>
               </p>
 
-              <div className="bg-gray-100 h-24 mb-3 flex items-center justify-center rounded">
-                <span className="text-gray-500 text-sm">[Map preview placeholder]</span>
+              <div className="h-40 rounded overflow-hidden">
+                {selectedWaste?.location?.coordinates ? (
+                  <MapContainer
+                    center={[
+                      selectedWaste.location.coordinates[1],
+                      selectedWaste.location.coordinates[0],
+                    ]}
+                    zoom={13}
+                    style={{ height: "100%", width: "100%" }}
+                    scrollWheelZoom={true} zoomControl={true} fullscreenControl={true}
+                  >
+                    <TileLayer
+                      attribution='&copy; OpenStreetMap contributors'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    <Marker
+                      position={[
+                        selectedWaste.location.coordinates[1],
+                        selectedWaste.location.coordinates[0],
+                      ]}
+                      icon={pinIcon}
+                    >
+                      {/* <Popup>{selectedWaste.title}</Popup> */}
+                    </Marker>
+                  </MapContainer>
+                ) : (
+                  <div className="flex justify-center items-center h-full text-gray-500 text-sm">
+                    No location available
+                  </div>
+                )}
               </div>
+              <a
+                href={`https://www.google.com/maps?q=${selectedWaste.location.coordinates[1]},${selectedWaste.location.coordinates[0]}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                View on Google Maps
+              </a>
+
 
               <textarea
                 rows="3"
                 placeholder="Write your claim message here..."
                 value={claimMessage}
                 onChange={(e) => setClaimMessage(e.target.value)}
-                className="w-full border border-gray-300 p-2 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-green-400"
+                className="w-full border border-gray-300 p-2 rounded mt-5 mb-3 focus:outline-none focus:ring-2 focus:ring-green-400"
               />
 
               <button
