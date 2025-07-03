@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute.js";
 
 import HomePage from "./pages/Home.js";
+import 'leaflet/dist/leaflet.css';
 
 // Auth pages
 import Register from "./pages/Register.js";

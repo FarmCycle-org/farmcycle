@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ProviderNavbar from "../../components/ProviderNavbar";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import SearchControl from "../../components/SearchControl";
+import "leaflet-fullscreen";
+import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
+
+
 
 const MyListings = () => {
   const [wasteItems, setWasteItems] = useState([]);
@@ -18,6 +26,7 @@ const MyListings = () => {
   const [wasteToDelete, setWasteToDelete] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editWaste, setEditWaste] = useState(null);
+  const [markerPosition, setMarkerPosition] = useState([28.6139, 77.209]); // Default: New Delhi
 
 
 
@@ -125,6 +134,46 @@ const MyListings = () => {
     alert("Error deleting listing.");
   }
 };
+
+const DraggableMarker = () => {
+  useMapEvents({
+    click(e) {
+    const { lat, lng } = e.latlng;
+    setMarkerPosition([lat, lng]);
+    setFormData((prev) => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng,
+      }));
+    },
+  });
+
+  return (
+    <Marker
+    draggable
+    position={markerPosition}
+    icon={pinIcon}
+    eventHandlers={{
+      dragend: (e) => {
+      const latlng = e.target.getLatLng();
+      setMarkerPosition([latlng.lat, latlng.lng]);
+      setFormData((prev) => ({
+        ...prev,
+        latitude: latlng.lat,
+        longitude: latlng.lng,
+        }));
+      },
+    }}
+    />
+  );
+};
+
+const pinIcon = new L.Icon({
+    iconUrl: "/pin-location.png", // if in public folder
+    iconSize: [42, 42],
+    iconAnchor: [15, 42],
+    popupAnchor: [0, -40],
+  });  
 
   return (
     <>
@@ -237,24 +286,12 @@ const MyListings = () => {
                 <option value="other">Other</option>
               </select>
 
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  name="latitude"
-                  placeholder="Latitude"
-                  value={formData.latitude}
-                  onChange={handleInputChange}
-                  className="w-1/2 border px-3 py-2 rounded"
-                />
-                <input
-                  type="number"
-                  name="longitude"
-                  placeholder="Longitude"
-                  value={formData.longitude}
-                  onChange={handleInputChange}
-                  className="w-1/2 border px-3 py-2 rounded"
-                />
-              </div>
+              <div className="h-64 w-full mb-2 rounded overflow-hidden border"> 
+                <MapContainer center={markerPosition} zoom={13} scrollWheelZoom={true} fullscreenControl={true} style={{ height: "100%", width: "100%" }} > 
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"attribution="© OpenStreetMap contributors" /> 
+                  <DraggableMarker /> 
+                  <SearchControl setMarkerPosition={setMarkerPosition} setFormData={setFormData} />
+                </MapContainer> </div>
 
               {/* Image Upload */}
               <input
