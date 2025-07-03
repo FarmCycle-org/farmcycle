@@ -81,6 +81,10 @@ exports.completePickup = async (req, res) => {
     pickup.status = "completed";
     await pickup.save();
 
+    // Also mark the Waste as collected
+    pickup.waste.status = "collected";
+    await pickup.waste.save();
+    
     res.json({ message: "Pickup marked as completed" });
   } catch (err) {
     console.error(err);
@@ -88,7 +92,8 @@ exports.completePickup = async (req, res) => {
   }
 };
 
-// (Optional) Get pickups for the logged-in user (collector or provider)
+//OPTIONAL
+//Get pickups for the logged-in user (collector or provider)
 exports.getMyPickups = async (req, res) => {
   try {
     const pickups = await Pickup.find({
@@ -104,3 +109,25 @@ exports.getMyPickups = async (req, res) => {
     res.status(500).json({ message: "Error fetching pickups" });
   }
 }; 
+
+// Get completed pickups for the logged-in user
+exports.getMyPickupHistory = async (req, res) => {
+  try {
+    const pickups = await Pickup.find({
+      status: "completed",
+      $or: [
+        { collector: req.user.id },
+        { provider: req.user.id }
+      ]
+    })
+    .populate("waste", "title imageUrl")
+    .populate("collector", "name email")
+    .populate("provider", "name email")
+    .sort({ updatedAt: -1 }); // Most recent first
+
+    res.json(pickups);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching pickup history" });
+  }
+};
