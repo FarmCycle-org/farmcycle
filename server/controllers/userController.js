@@ -130,3 +130,35 @@ exports.deleteMyAccount = async (req, res) => {
   }
 };
 
+// Update user's current location
+exports.updateLocation = async (req, res) => {
+  try {
+    const { longitude, latitude } = req.body;
+
+    if (
+      typeof longitude !== "number" ||
+      typeof latitude !== "number"
+    ) {
+      return res.status(400).json({ message: "Valid longitude and latitude are required" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        location: {
+          type: "Point",
+          coordinates: [longitude, latitude]
+        }
+      },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    res.json({
+      message: "Location updated successfully",
+      location: user.location
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error updating location" });
+  }
+};

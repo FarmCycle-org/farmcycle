@@ -26,4 +26,7 @@ router.delete("/me/profile-picture",protect,userController.deleteProfilePicture)
 // Delete my account
 router.delete("/me", protect, userController.deleteMyAccount);
 
+//save/update user location
+router.patch("/location", protect, userController.updateLocation);
+
 module.exports = router;
