@@ -39,6 +39,7 @@ const ProviderNavbar = () => {
         <li><Link to="/provider/my-listings" className="hover:underline">My Listings</Link></li>
         <li><Link to="/provider/requests" className="hover:underline">Requests</Link></li>
         <li><Link to="/provider/profile" className="hover:underline">Profile</Link></li>
+        <li><Link to="/provider/history" className="hover:underline">History</Link></li>
       </ul>
 
       <div className="flex items-center gap-4">

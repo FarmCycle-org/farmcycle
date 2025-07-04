@@ -9,7 +9,7 @@ const MyRequests = () => {
   const [selectedClaim, setSelectedClaim] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
-const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
 
 
   const timeSlots = [
@@ -21,13 +21,22 @@ const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
         const claimsRes = await axios.get("http://localhost:5000/api/claims/my/claims", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setClaims(claimsRes.data);
+
+        const filteredClaims = claimsRes.data.filter(claim => {
+          if (!claim.waste) return false;
+          const isPending = claim.status === "pending";
+          const isAcceptedAndNotCollected =
+            claim.status === "accepted" && claim.waste.status !== "collected";
+          return isPending || isAcceptedAndNotCollected;
+        });
+
+        setClaims(filteredClaims);
 
         const pickupsRes = await axios.get("http://localhost:5000/api/pickups/my", {
           headers: { Authorization: `Bearer ${token}` },
@@ -37,8 +46,7 @@ const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
         console.error("Error fetching data:", err);
       }
     };
-
-    fetchData();
+  fetchData();
   }, []);
 
   const openScheduleModal = (claim) => {

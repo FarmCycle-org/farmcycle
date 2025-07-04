@@ -1,6 +1,7 @@
 //WASTE LISTING CRUD
 
 const Waste = require("../models/Waste");
+const Claim = require("../models/Claim");
 const User= require("../models/User");
 
 // //Create waste listing
@@ -91,6 +92,24 @@ exports.updateWaste = async (req, res) => {
   }
 };
 
+// Get all waste listings not claimed (accepted) yet
+exports.getAllWaste = async (req, res) => {
+  try {
+    // Get waste IDs that already have an accepted claim
+    const claimedWasteIds = await Claim.find({ status: "accepted" }).distinct("waste");
+
+    // Fetch waste that is available and not already accepted by any collector
+    const waste = await Waste.find({
+      status: "available",
+      _id: { $nin: claimedWasteIds },
+    }).populate("createdBy", "name email role organization");
+
+    res.json(waste);
+      } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching wastes" });
+  }
+};
 //get all waste(OPTIMIZED)
 // Get available wastes with optional filters & sorting
 exports.getAvailableWastes = async (req, res) => {
@@ -163,8 +182,10 @@ exports.getAvailableWastes = async (req, res) => {
             createdAt: 1,
             status: 1,
             distance: 1,
-            "provider.name": 1,
-            "provider.organization": 1
+            createdBy: {
+              name: "$provider.name",
+              organization: "$provider.organization"
+            }
           }
         },
         { $sort: { distance: 1 } }

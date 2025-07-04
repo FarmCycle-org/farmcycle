@@ -35,22 +35,26 @@ const MyListings = () => {
   // Fetch provider's own listings
   useEffect(() => {
     const fetchMyWaste = async () => {
-      try {
-        const res = await axios.get("http://localhost:5000/api/waste/my", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setWasteItems(res.data);
-      } catch (err) {
-        console.error("Error fetching listings:", err);
-      } finally {
-        setLoading(false);
-      }
+    try {
+    const res = await axios.get("http://localhost:5000/api/waste/my", {
+    headers: {
+    Authorization: `Bearer ${token}`,
+    },
+    });
+
+      // Only include listings where status is NOT "collected"
+      const activeWaste = res.data.filter((item) => item.status !== "collected");
+
+      setWasteItems(activeWaste);
+    } catch (err) {
+      console.error("Error fetching listings:", err);
+    } finally {
+      setLoading(false);
+    }
     };
 
     fetchMyWaste();
-  }, [token]);
+    }, [token]);
 
   const handleInputChange = (e) => {
     setFormData((prev) => ({

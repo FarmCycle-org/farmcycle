@@ -25,7 +25,7 @@ const Browse = () => {
 
     // Fetch waste listings
     const wasteRes = await axios.get("http://localhost:5000/api/waste", {
-      headers: { "Cache-Control": "no-cache" },
+      headers: { "Authorization": `Bearer ${token}`, "Cache-Control": "no-cache" },
     });
     setWasteItems(wasteRes.data);
 
