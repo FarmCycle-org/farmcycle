@@ -1,6 +1,7 @@
 //WASTE LISTING CRUD
 
 const Waste = require("../models/Waste");
+const Claim = require("../models/Claim");
 
 // //Create waste listing
 exports.createWaste = async (req, res) => {
@@ -90,10 +91,18 @@ exports.updateWaste = async (req, res) => {
   }
 };
 
-// Get all waste listings
+// Get all waste listings not claimed (accepted) yet
 exports.getAllWaste = async (req, res) => {
   try {
-    const waste = await Waste.find().populate("createdBy", "name email role organization");
+    // Get waste IDs that already have an accepted claim
+    const claimedWasteIds = await Claim.find({ status: "accepted" }).distinct("waste");
+
+    // Fetch waste that is available and not already accepted by any collector
+    const waste = await Waste.find({
+      status: "available",
+      _id: { $nin: claimedWasteIds },
+    }).populate("createdBy", "name email role organization");
+
     res.json(waste);
   } catch (err) {
     console.error(err);

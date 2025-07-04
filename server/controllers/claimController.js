@@ -81,7 +81,7 @@ exports.getClaimsForProvider = async (req, res) => {
     // Get all claims for those listings
     const claims = await Claim.find({ waste: { $in: wasteIds } })
       .populate("collector", "name email")
-      .populate("waste", "title");
+      .populate("waste", "title status");
 
     res.json(claims);
   } catch (err) {
