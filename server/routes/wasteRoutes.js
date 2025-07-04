@@ -11,7 +11,8 @@ router.post("/", protect,parser.single("image"), wasteController.createWaste);
 router.put("/:id", protect,parser.single("image"), wasteController.updateWaste);
 
 // Get all waste
-router.get("/", wasteController.getAllWaste);
+// router.get("/", wasteController.getAllWaste);
+router.get("/",protect, wasteController.getAvailableWastes);
 
 // Get waste listings by the logged-in provider
 router.get("/my", protect, wasteController.getMyWaste);

@@ -1,6 +1,7 @@
 //WASTE LISTING CRUD
 
 const Waste = require("../models/Waste");
+const User= require("../models/User");
 
 // //Create waste listing
 exports.createWaste = async (req, res) => {
@@ -90,16 +91,105 @@ exports.updateWaste = async (req, res) => {
   }
 };
 
-// Get all waste listings
-exports.getAllWaste = async (req, res) => {
+//get all waste(OPTIMIZED)
+// Get available wastes with optional filters & sorting
+exports.getAvailableWastes = async (req, res) => {
   try {
-    const waste = await Waste.find().populate("createdBy", "name email role organization");
-    res.json(waste);
+    const user = await User.findById(req.user.id);
+
+    // Build the base filter
+    const filter = { status: "available" };
+
+    // Query params
+    const { wasteType, minQuantity, maxQuantity, organization, createdAfter, createdBefore } = req.query;
+
+    // Filter by wasteType
+    if (wasteType) {
+      filter.wasteType = wasteType;
+    }
+
+    // Quantity filter
+    if (minQuantity || maxQuantity) {
+      filter.quantity = {};
+      if (minQuantity) filter.quantity.$gte = minQuantity;
+      if (maxQuantity) filter.quantity.$lte = maxQuantity;
+    }
+
+    // Date range filter
+    if (createdAfter || createdBefore) {
+      filter.createdAt = {};
+      if (createdAfter) filter.createdAt.$gte = new Date(createdAfter);
+      if (createdBefore) filter.createdAt.$lte = new Date(createdBefore);
+    }
+
+    let wastes;
+
+    if (user.location && user.location.coordinates?.length === 2) {
+      // With geo search
+      wastes = await Waste.aggregate([
+        {
+          $geoNear: {
+            near: {
+              type: "Point",
+              coordinates: user.location.coordinates
+            },
+            distanceField: "distance",
+            spherical: true,
+            query: filter
+          }
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "createdBy",
+            foreignField: "_id",
+            as: "provider"
+          }
+        },
+        { $unwind: "$provider" },
+        // Filter by provider.organization
+        ...(organization
+          ? [{ $match: { "provider.organization": organization } }]
+          : []
+        ),
+        {
+          $project: {
+            title: 1,
+            description: 1,
+            quantity: 1,
+            wasteType: 1,
+            location: 1,
+            imageUrl: 1,
+            createdAt: 1,
+            status: 1,
+            distance: 1,
+            "provider.name": 1,
+            "provider.organization": 1
+          }
+        },
+        { $sort: { distance: 1 } }
+      ]);
+    } else {
+      // Without geo search
+      wastes = await Waste.find(filter)
+        .populate("createdBy", "name organization")
+        .sort({ createdAt: -1 });
+
+      // If organization filter is set, filter manually
+      if (organization) {
+        wastes = wastes.filter(
+          w => w.createdBy.organization === organization
+        );
+      }
+    }
+
+    res.json(wastes);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error fetching waste" });
+    res.status(500).json({ message: "Error fetching wastes" });
   }
 };
+
 
 exports.getMyWaste = async (req, res) => {
   try {
