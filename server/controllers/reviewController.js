@@ -68,29 +68,14 @@ exports.getReviewsForProvider = async (req, res) => {
   }
 };
 
-// Update a review
-exports.updateReview = async (req, res) => {
+// Get all reviews submitted by the current collector
+exports.getMyReviews = async (req, res) => {
   try {
-    const reviewId = req.params.id;
-    const review = await Review.findById(reviewId);
-
-    if (!review) {
-      return res.status(404).json({ message: "Review not found" });
-    }
-
-    if (review.collector.toString() !== req.user.id) {
-      return res.status(403).json({ message: "Not authorized to edit this review" });
-    }
-
-    if (req.body.rating !== undefined) review.rating = req.body.rating;
-    if (req.body.comment !== undefined) review.comment = req.body.comment;
-
-    await review.save();
-
-    res.json({ message: "Review updated", review });
+    const reviews = await Review.find({ collector: req.user.id }).select("pickup");
+    res.json(reviews);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error updating review" });
+    console.error("Error fetching collector's reviews:", err);
+    res.status(500).json({ message: "Error fetching your reviews" });
   }
 };
 
