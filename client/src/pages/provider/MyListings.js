@@ -269,7 +269,7 @@ const pinIcon = new L.Icon({
               <input
                 type="text"
                 name="quantity"
-                placeholder="Quantity"
+                placeholder="Quantity in kg"
                 value={formData.quantity}
                 onChange={handleInputChange}
                 className="w-full border px-3 py-2 rounded"

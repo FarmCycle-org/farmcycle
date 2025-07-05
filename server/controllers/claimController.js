@@ -61,7 +61,13 @@ exports.getMyClaims = async (req, res) => {
   try {
     console.log("Authenticated user:", req.user);
     const claims = await Claim.find({ collector: req.user.id })
-      .populate("waste");
+      .populate({
+        path: "waste",
+        populate: {
+          path: "createdBy",
+          select: "name"
+        }
+      });
 
     res.json(claims);
   } catch (err) {
@@ -69,6 +75,7 @@ exports.getMyClaims = async (req, res) => {
     res.status(500).json({ message: "Server error fetching my claims" });
   }
 };
+
 
 exports.getClaimsForProvider = async (req, res) => {
   try {
