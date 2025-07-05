@@ -38,28 +38,33 @@ const ProviderDashboard = () => {
 
   const calculateStats = (items) => {
     const byType = {};
-    let total = 0;
-    let collected = 0;
+    let totalCollectedQty = 0;
+    let collectedCount = 0;
+    let activeCount = 0;
     let co2Saved = 0;
     let treesSaved = 0;
 
     items.forEach((item) => {
       const qty = parseFloat(item.quantity) || 0;
-      total += qty;
-      if (item.status === "collected") collected += 1;
+      if (item.status === "collected") {
+        collectedCount += 1;
+        totalCollectedQty += qty;
 
-      const type = item.wasteType;
-      byType[type] = (byType[type] || 0) + qty;
+        const type = item.wasteType;
+        byType[type] = (byType[type] || 0) + qty;
 
-      const factor = impactFactors[type];
-      if (factor?.co2) co2Saved += factor.co2 * qty;
-      if (factor?.trees) treesSaved += factor.trees * qty;
+        const factor = impactFactors[type];
+        if (factor?.co2) co2Saved += factor.co2 * qty;
+        if (factor?.trees) treesSaved += factor.trees * qty;
+      } else {
+        activeCount += 1;
+      }
     });
 
     setStats({
-      totalWaste: total,
-      activeListings: items.length - collected,
-      collectedListings: collected,
+      totalCollectedQty: totalCollectedQty.toFixed(2),
+      activeListings: activeCount,
+      collectedListings: collectedCount,
       co2Saved: co2Saved.toFixed(2),
       treesSaved: treesSaved.toFixed(2),
       chartData: Object.entries(byType).map(([type, quantity]) => ({ type, quantity })),
@@ -74,7 +79,7 @@ const ProviderDashboard = () => {
 
         {/* Top Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-          <StatCard label="Total Waste Listed" value={`${stats.totalWaste || 0} kg`} />
+          <StatCard label="Total Waste Provided" value={`${stats.totalCollectedQty || 0} kg`} />
           <StatCard label="Active Listings" value={stats.activeListings || 0} />
           <StatCard label="Collected Listings" value={stats.collectedListings || 0} />
         </div>
@@ -82,7 +87,7 @@ const ProviderDashboard = () => {
         {/* Impact section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           <div className="bg-white p-4 rounded-xl shadow">
-            <h2 className="text-2xl font-semibold mb-4 text-green-700">Waste Distribution by Type</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-green-700">Collected Waste Distribution</h2>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -109,14 +114,14 @@ const ProviderDashboard = () => {
             <ul className="space-y-2">
               <li className="text-gray-700 text-lg">🌬️ CO₂ Prevented: <strong>{stats.co2Saved} kg</strong></li>
               <li className="text-gray-700 text-lg">🌳 Trees Saved: <strong>{stats.treesSaved}</strong></li>
-              <li className="text-gray-700 text-lg">📦 Total Waste Processed: <strong>{stats.totalWaste} kg</strong></li>
+              <li className="text-gray-700 text-lg">📦 Total Waste Provided: <strong>{stats.totalCollectedQty} kg</strong></li>
             </ul>
           </div>
         </div>
 
         {/* Bar Chart Full Width */}
         <div className="bg-white p-6 rounded-xl shadow mb-10">
-          <h2 className="text-2xl font-semibold mb-14 text-green-700">Waste Breakdown by Type</h2>
+          <h2 className="text-2xl font-semibold mb-14 text-green-700">Collected Waste Breakdown by Type</h2>
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={stats.chartData || []}>
               <XAxis dataKey="type" />
@@ -128,7 +133,6 @@ const ProviderDashboard = () => {
                 ))}
               </Bar>
             </BarChart>
-
           </ResponsiveContainer>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import CollectorNavbar from "../../components/CollectorNavbar";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
 const COLORS = ["#4CAF50", "#FF9800", "#2196F3", "#9C27B0", "#F44336", "#607D8B"];
 
@@ -35,51 +35,35 @@ const CollectorDashboard = () => {
     fetchClaims();
   }, []);
 
-const calculateStats = (claims) => {
-  const accepted = claims.filter((claim) => claim.status === "accepted");
-  const collected = claims.filter((claim) => claim.collected);
+  const calculateStats = (claims) => {
+    const accepted = claims.filter((claim) => claim.status === "accepted");
+    const collected = claims.filter((claim) => claim.waste?.status === "collected");
 
-  let total = 0;
-  let co2Saved = 0;
-  const byType = {};
+    let total = 0;
+    let co2Saved = 0;
+    const byType = {};
 
-  collected.forEach((claim) => {
-    const qty = parseFloat(claim.waste?.quantity) || 0;
-    total += qty;
+    collected.forEach((claim) => {
+      const qty = parseFloat(claim.waste?.quantity) || 0;
+      total += qty;
 
-    const type = claim.waste?.wasteType;
-    if (type) {
-      byType[type] = (byType[type] || 0) + qty;
-      const factor = impactFactors[type];
-      if (factor?.co2) co2Saved += factor.co2 * qty;
-    }
-  });
+      const type = claim.waste?.wasteType;
+      if (type) {
+        byType[type] = (byType[type] || 0) + qty;
+        const factor = impactFactors[type];
+        if (factor?.co2) co2Saved += factor.co2 * qty;
+      }
+    });
 
-  setStats({
-    totalWaste: total.toFixed(1),
-    totalClaims: claims.length,
-    acceptedClaims: accepted.length,
-    collectedWasteCount: collected.length,
-    co2Saved: co2Saved.toFixed(2),
-    chartData: Object.entries(byType).map(([type, quantity]) => ({
-      type,
-      quantity,
-    })),
-  });
-
-  setStats({
-    totalWaste: total.toFixed(1),
-    totalClaims: claims.length,
-    acceptedClaims: accepted.length,
-    collectedWasteCount: collected.length,
-    co2Saved: co2Saved.toFixed(2),
-    chartData: Object.entries(byType).map(([type, quantity]) => ({
-      type,
-      quantity,
-    })),
-  });
-};
-
+    setStats({
+      totalWaste: total.toFixed(1),
+      totalClaims: claims.length,
+      acceptedClaims: accepted.length,
+      collectedWasteCount: collected.length,
+      co2Saved: co2Saved.toFixed(2),
+      chartData: Object.entries(byType).map(([type, quantity]) => ({ type, quantity })),
+    });
+  };
 
   return (
     <>
@@ -89,11 +73,10 @@ const calculateStats = (claims) => {
 
         {/* Top Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          <StatCard label="Total Waste Claimed" value={`${stats.totalWaste || 0} kg`} />
+          <StatCard label="Total Waste Collected" value={`${stats.totalWaste || 0} kg`} />
           <StatCard label="Total Claims Made" value={stats.totalClaims || 0} />
-          <StatCard label="Claims Accepted" value={`${stats.acceptedClaims || 0} `} />
+          <StatCard label="Claims Accepted" value={`${stats.acceptedClaims || 0}`} />
           <StatCard label="Wastes Collected" value={stats.collectedWasteCount || 0} />
-
         </div>
 
         {/* Impact section */}
@@ -143,14 +126,11 @@ const calculateStats = (claims) => {
               <XAxis dataKey="type" />
               <YAxis />
               <Tooltip />
-              {stats.chartData?.map((entry, index) => (
-                <Bar
-                  key={entry.type}
-                  dataKey="quantity"
-                  fill={COLORS[index % COLORS.length]}
-                  isAnimationActive={false}
-                />
-              ))}
+              <Bar dataKey="quantity">
+                {stats.chartData?.map((entry, index) => (
+                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>

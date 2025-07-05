@@ -31,13 +31,14 @@ const CollectorNavbar = () => {
   }, []);
 
   return (
-    <nav className="bg-blue-700 text-white px-6 py-4 flex justify-between items-center shadow-md">
+    <nav className="bg-black text-white px-6 py-4 flex justify-between items-center shadow-md">
       <h1 className="text-xl font-bold">♻️ FarmCycle</h1>
       <ul className="flex space-x-6 text-lg">
         <li><Link to="/collector/dashboard" className="hover:underline">Dashboard</Link></li>
         <li><Link to="/collector/browse" className="hover:underline">Browse</Link></li>
         <li><Link to="/collector/my-requests" className="hover:underline">My Requests</Link></li>
         <li><Link to="/collector/profile" className="hover:underline">Profile</Link></li>
+        <li><Link to="/collector/history" className="hover:underline">History</Link></li>
       </ul>
       <div className="flex items-center gap-4">
         {profilePic && (

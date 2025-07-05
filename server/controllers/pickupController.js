@@ -68,7 +68,7 @@ exports.completePickup = async (req, res) => {
   try {
     const pickupId = req.params.id;
 
-    const pickup = await Pickup.findById(pickupId);
+    const pickup = await Pickup.findById(pickupId).populate('waste');
     if (!pickup) {
       return res.status(404).json({ message: "Pickup not found" });
     }

@@ -9,28 +9,35 @@ const Requests = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [claimsRes, pickupsRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/claims/provider/claims", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get("http://localhost:5000/api/pickups/my", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
-        setClaims(claimsRes.data);
-        setPickups(pickupsRes.data);
-      } catch (err) {
-        console.error("Failed to fetch data:", err);
-        alert("Failed to fetch requests.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      const [claimsRes, pickupsRes] = await Promise.all([
+        axios.get("http://localhost:5000/api/claims/provider/claims", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get("http://localhost:5000/api/pickups/my", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
 
-    fetchData();
-  }, [token]);
+      // filter out claims whose associated waste is already collected
+      const filteredClaims = claimsRes.data.filter(
+        (claim) => claim.waste && claim.waste.status !== "collected"
+      );
+
+      setClaims(filteredClaims);
+      setPickups(pickupsRes.data);
+    } catch (err) {
+      console.error("Failed to fetch data:", err);
+      alert("Failed to fetch requests.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, [token]);
+
 
   const handleAction = async (claimId, action) => {
     try {

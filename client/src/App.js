@@ -13,12 +13,15 @@ import ProviderDashboard from "./pages/provider/ProviderDashboard";
 import MyListings from "./pages/provider/MyListings";
 import Requests from "./pages/provider/Requests";
 import ProviderProfile from "./pages/provider/ProviderProfile";
+import ProviderHistory from "./pages/provider/ProviderHistory.js";
+
 
 // Collector pages
 import CollectorDashboard from "./pages/collector/CollectorDashboard";
 import Browse from "./pages/collector/Browse";
 import MyRequests from "./pages/collector/MyRequests";
 import CollectorProfile from "./pages/collector/CollectorProfile";
+import CollectorHistory from "./pages/collector/CollectorHistory";
 import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext.js";
 
@@ -39,6 +42,7 @@ function App() {
           <Route path="/provider/my-listings" element={<MyListings />} />
           <Route path="/provider/requests" element={<Requests />} />
           <Route path="/provider/profile" element={<ProviderProfile />} />
+          <Route path="/provider/history" element={<ProviderHistory />} />
         </Route>
 
         {/* Collector-only routes */}
@@ -47,6 +51,7 @@ function App() {
           <Route path="/collector/browse" element={<Browse />} />
           <Route path="/collector/my-requests" element={<MyRequests />} />
           <Route path="/collector/profile" element={<CollectorProfile />} />
+          <Route path="/collector/history" element={<CollectorHistory />} />
         </Route>
 
          {/* Optional: fallback 404 or redirect */}

@@ -7,8 +7,6 @@ import L from "leaflet";
 import "leaflet-fullscreen";
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
 
-
-
 const Browse = () => {
   const [wasteItems, setWasteItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,43 +15,66 @@ const Browse = () => {
   const [claimedWasteIds, setClaimedWasteIds] = useState([]);
   const [selectedWaste, setSelectedWaste] = useState(null);
   const [claimMessage, setClaimMessage] = useState("");
+  // New state to store provider ratings
+  const [providerRatings, setProviderRatings] = useState({});
 
   const fetchWasteAndClaims = async () => {
-  try {
-    setLoading(true); // <- in case user clicks Refresh button
-    const token = localStorage.getItem("token");
+    try {
+      setLoading(true); // <- in case user clicks Refresh button
+      const token = localStorage.getItem("token");
 
-    // Fetch waste listings
-    const wasteRes = await axios.get("http://localhost:5000/api/waste", {
-      headers: { "Cache-Control": "no-cache" },
-    });
-    setWasteItems(wasteRes.data);
+      // Fetch waste listings
+      const wasteRes = await axios.get("http://localhost:5000/api/waste", {
+        headers: { "Authorization": `Bearer ${token}`, "Cache-Control": "no-cache" },
+      });
+      setWasteItems(wasteRes.data);
 
-    // Fetch user claims
-    const claimsRes = await axios.get(
-      "http://localhost:5000/api/claims/my/claims",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+      // Fetch user claims
+      const claimsRes = await axios.get(
+        "http://localhost:5000/api/claims/my/claims",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    const claimedIds = claimsRes.data
-      .filter((claim) => claim.waste && claim.waste._id)
-      .map((claim) => claim.waste._id);
-    setClaimedWasteIds(claimedIds);
-  } catch (err) {
-    console.error("Error fetching data:", err);
-    setError("Failed to load data.");
-  } finally {
-    setLoading(false);
-  }
-};
+      const claimedIds = claimsRes.data
+        .filter((claim) => claim.waste && claim.waste._id)
+        .map((claim) => claim.waste._id);
+      setClaimedWasteIds(claimedIds);
 
-useEffect(() => {
-  fetchWasteAndClaims();
-}, []);
+      // --- New: Fetch average ratings for providers ---
+      const uniqueProviderIds = [...new Set(wasteRes.data.map(item => item.createdBy?._id).filter(Boolean))];
+      const ratingsPromises = uniqueProviderIds.map(async (providerId) => {
+        try {
+          const ratingRes = await axios.get(`http://localhost:5000/api/reviews/provider/${providerId}/average`);
+          return { providerId, data: ratingRes.data };
+        } catch (ratingErr) {
+          console.error(`Error fetching rating for provider ${providerId}:`, ratingErr);
+          return { providerId, data: { avgRating: null, numReviews: 0 } }; // Return default if error
+        }
+      });
+
+      const fetchedRatings = await Promise.all(ratingsPromises);
+      const newProviderRatings = fetchedRatings.reduce((acc, { providerId, data }) => {
+        acc[providerId] = data;
+        return acc;
+      }, {});
+      setProviderRatings(newProviderRatings);
+      // --- End New ---
+
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setError("Failed to load data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchWasteAndClaims();
+  }, []);
 
 
   const handleClaimSubmit = async () => {
@@ -71,16 +92,31 @@ useEffect(() => {
         }
       );
       setClaimedWasteIds((prev) => [...prev, selectedWaste._id]);
-      alert("Claim submitted successfully!");
+      // Replace alert with a custom message box for better UX
+      // alert("Claim submitted successfully!");
+      showCustomMessageBox("Claim submitted successfully!", "success");
       setSelectedWaste(null);
       setClaimMessage("");
     } catch (err) {
       console.error("Error submitting claim:", err);
-      alert("Failed to submit claim.");
+      // Replace alert with a custom message box for better UX
+      // alert("Failed to submit claim.");
+      showCustomMessageBox("Failed to submit claim.", "error");
     } finally {
       setClaimingId(null);
     }
   };
+
+  // Custom Message Box State and Function (replaces alert)
+  const [messageBox, setMessageBox] = useState({ visible: false, message: "", type: "" });
+
+  const showCustomMessageBox = (message, type) => {
+    setMessageBox({ visible: true, message, type });
+    setTimeout(() => {
+      setMessageBox({ visible: false, message: "", type: "" });
+    }, 3000); // Hide after 3 seconds
+  };
+
 
   if (loading) return <div className="text-center mt-10 text-lg">Loading waste items...</div>;
   if (error) return <div className="text-center mt-10 text-red-600">{error}</div>;
@@ -90,7 +126,7 @@ useEffect(() => {
     iconSize: [42, 42],
     iconAnchor: [15, 42],
     popupAnchor: [0, -40],
-  });  
+  });
 
   return (
     <>
@@ -101,48 +137,78 @@ useEffect(() => {
         {wasteItems.length === 0 ? (
           <p className="text-center text-gray-500">No waste items available.</p>
         ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> {wasteItems.map((waste) => ( <div key={waste._id} className="bg-white
-             rounded-xl shadow hover:shadow-md transition cursor-pointer flex h-52 overflow-hidden" onClick={() => setSelectedWaste(waste)} > 
-            {/* Image section */} {waste.imageUrl ? ( <img src={waste.imageUrl} alt={waste.title} className="w-52 h-full object-cover 
-            rounded-l-xl flex-shrink-0" /> ) : ( <div className="w-52 h-52 bg-gray-200 flex items-center justify-center text-gray-500 
-            text-sm"> No Image </div> )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {wasteItems.map((waste) => {
+              const providerId = waste.createdBy?._id;
+              const ratingData = providerRatings[providerId];
+              const avgRating = ratingData?.avgRating;
+              const numReviews = ratingData?.numReviews;
 
-            {/* Details section */}
-            <div className="p-4 flex-1 relative">
-              <h2 className="text-xl font-bold text-green-800">{waste.title}</h2>
-              {/* <p className="text-gray-600">{waste.description || "No description provided."}</p> */}
-              <p className="text-sm text-gray-500 mt-5">
-                Quantity: <strong>{waste.quantity || "N/A"}</strong>
-              </p>
-              <p className="text-sm text-gray-500 mt-1">
-                Waste Type: <strong>{waste.wasteType?.toUpperCase() || "N/A"}</strong>
-              </p>
-              <p className="text-sm text-gray-500 mt-1">
-                Organization: <strong>{waste.createdBy?.organization?.toUpperCase() || "N/A"}</strong>
-              </p>
-              {/* <p className="text-sm text-gray-500">
-                By: <strong>{waste.createdBy?.name?.toUpperCase() || "N/A"}</strong>
-              </p> */}
-              {waste.location?.coordinates && (
-                <p className="text-sm text-gray-500 mt-1">
-                  Location: [{waste.location.coordinates[1].toFixed(4)}, {waste.location.coordinates[0].toFixed(4)}]
-                </p>
-              )}
-              <p className="text-xs text-gray-400 mt-7">
-                Posted on: {new Date(waste.createdAt).toLocaleDateString()}
-              </p>
-              {claimedWasteIds.includes(waste._id) && (
-                <span className="absolute bottom-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
-                  Claimed
-                </span>
-              )}
-            </div>
-          </div>
-          ))}
+              return (
+                <div
+                  key={waste._id}
+                  className="bg-white rounded-xl shadow hover:shadow-md transition cursor-pointer flex h-52 overflow-hidden relative" // Added relative for absolute positioning of rating
+                  onClick={() => setSelectedWaste(waste)}
+                >
+                  {/* Rating display on top-right */}
+                  {avgRating !== null && avgRating !== undefined && (
+                    <div className="absolute top-2 right-2 bg-black text-white text-xs px-3 py-2 rounded-full flex items-center shadow-md">
+                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.683-1.539 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.565-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.07-3.292z"></path>
+                      </svg>
+                      <span>{avgRating.toFixed(1)}</span>
+                      {numReviews > 0 && <span className="ml-1">({numReviews})</span>}
+                    </div>
+                  )}
+                  {/* Image section */}
+                  {waste.imageUrl ? (
+                    <img src={waste.imageUrl} alt={waste.title} className="w-52 h-full object-cover rounded-l-xl flex-shrink-0" />
+                  ) : (
+                    <div className="w-52 h-52 bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
+                      No Image
+                    </div>
+                  )}
 
+                  {/* Details section */}
+                  <div className="p-4 flex-1 relative">
+                    <h2 className="text-xl font-bold text-green-800">{waste.title}</h2>
+                    <p className="text-sm text-gray-500 mt-5">
+                      Quantity: <strong>{waste.quantity || "N/A"}</strong>
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Waste Type: <strong>{waste.wasteType?.toUpperCase() || "N/A"}</strong>
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Organization: <strong>{waste.createdBy?.organization?.toUpperCase() || "N/A"}</strong>
+                    </p>
+                    {waste.location?.coordinates && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        Location: [{waste.location.coordinates[1].toFixed(4)}, {waste.location.coordinates[0].toFixed(4)}]
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-400 mt-7">
+                      Posted on: {new Date(waste.createdAt).toLocaleDateString()}
+                    </p>
+                    {claimedWasteIds.includes(waste._id) && (
+                      <span className="absolute bottom-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
+                        Claimed
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
+
+      {/* Custom Message Box UI */}
+      {messageBox.visible && (
+        <div className={`fixed bottom-4 left-1/2 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-white z-50
+          ${messageBox.type === "success" ? "bg-green-500" : "bg-red-500"}`}>
+          {messageBox.message}
+        </div>
+      )}
 
       {/* Claim Modal */}
       {selectedWaste && (
@@ -258,7 +324,6 @@ useEffect(() => {
           </div>
         </div>
       )}
-
     </>
   );
 };
