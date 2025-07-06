@@ -9,4 +9,7 @@ router.get("/", protect, notificationController.getMyNotifications);
 // Mark as read
 router.put("/:id/read", protect, notificationController.markAsRead);
 
+//delete 
+router.delete("/:id", protect, notificationController.deleteNotification);
+
 module.exports = router;

@@ -14,7 +14,7 @@ import MyListings from "./pages/provider/MyListings";
 import Requests from "./pages/provider/Requests";
 import ProviderProfile from "./pages/provider/ProviderProfile";
 import ProviderHistory from "./pages/provider/ProviderHistory.js";
-
+import ProviderNotifications from "./pages/provider/ProviderNotifications.js";
 
 // Collector pages
 import CollectorDashboard from "./pages/collector/CollectorDashboard";
@@ -22,6 +22,7 @@ import Browse from "./pages/collector/Browse";
 import MyRequests from "./pages/collector/MyRequests";
 import CollectorProfile from "./pages/collector/CollectorProfile";
 import CollectorHistory from "./pages/collector/CollectorHistory";
+import CollectorNotifications from "./pages/collector/CollectorNotifications.js";
 import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext.js";
 
@@ -43,6 +44,7 @@ function App() {
           <Route path="/provider/requests" element={<Requests />} />
           <Route path="/provider/profile" element={<ProviderProfile />} />
           <Route path="/provider/history" element={<ProviderHistory />} />
+          <Route path="/provider/notifications" element={<ProviderNotifications />} />
         </Route>
 
         {/* Collector-only routes */}
@@ -52,6 +54,7 @@ function App() {
           <Route path="/collector/my-requests" element={<MyRequests />} />
           <Route path="/collector/profile" element={<CollectorProfile />} />
           <Route path="/collector/history" element={<CollectorHistory />} />
+          <Route path="/collector/notifications" element={<CollectorNotifications />} />
         </Route>
 
          {/* Optional: fallback 404 or redirect */}
