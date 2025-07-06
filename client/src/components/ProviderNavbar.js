@@ -31,15 +31,19 @@ const ProviderNavbar = () => {
   }, []);
 
   return (
-    <nav className="bg-green-700 text-white px-6 py-4 flex justify-between items-center shadow-md">
-      <h1 className="text-xl font-bold">🌿 FarmCycle</h1>
-      
+    <nav className="mx-auto flex justify-between items-center py-4 px-6 bg-emerald-600 w-full shadow-md">
+      <Link to="/provider/dashboard" className="text-2xl font-bold text-gray-800">
+        FarmCycle
+      </Link>
+
       <ul className="flex space-x-6 text-lg">
-        <li><Link to="/provider/dashboard" className="hover:underline">Dashboard</Link></li>
-        <li><Link to="/provider/my-listings" className="hover:underline">My Listings</Link></li>
-        <li><Link to="/provider/requests" className="hover:underline">Requests</Link></li>
-        <li><Link to="/provider/profile" className="hover:underline">Profile</Link></li>
-        <li><Link to="/provider/history" className="hover:underline">History</Link></li>
+        <li><Link to="/provider/dashboard" className="text-white hover:text-gray-800">Dashboard</Link></li>
+        <li><Link to="/provider/my-listings" className="text-white hover:text-gray-800">My Listings</Link></li>
+        <li><Link to="/provider/requests" className="text-white hover:text-gray-800">Requests</Link></li>
+        {/* New Notifications Link */}
+        <li><Link to="/provider/notifications" className="text-white hover:text-gray-800">Notifications</Link></li>
+        <li><Link to="/provider/profile" className="text-white hover:text-gray-800">Profile</Link></li>
+        <li><Link to="/provider/history" className="text-white hover:text-gray-800">History</Link></li>
       </ul>
 
       <div className="flex items-center gap-4">
@@ -52,7 +56,7 @@ const ProviderNavbar = () => {
         )}
         <button
           onClick={handleLogout}
-          className="bg-white text-green-700 px-4 py-2 rounded hover:bg-green-100 font-semibold"
+          className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-black font-semibold"
         >
           Logout
         </button>
