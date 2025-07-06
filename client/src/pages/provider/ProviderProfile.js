@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ProviderNavbar from "../../components/ProviderNavbar";
+import LocationSection from "../../components/LocationSection";
 
 const ProviderProfile = () => {
   const [user, setUser] = useState(null);
@@ -9,6 +10,7 @@ const ProviderProfile = () => {
   const [profilePicPreview, setProfilePicPreview] = useState(null);
   const [file, setFile] = useState(null);
   const token = localStorage.getItem("token");
+  const [userHasLocation, setUserHasLocation] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -25,6 +27,23 @@ const ProviderProfile = () => {
     };
     fetchProfile();
   }, [token]);
+
+  useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get("http://localhost:5000/api/users/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const coords = res.data?.location?.coordinates;
+      setUserHasLocation(Array.isArray(coords) && coords.length === 2);
+    } catch (err) {
+      console.error("Failed to check user location:", err);
+    }
+  };
+
+  fetchUser();
+}, []);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -75,6 +94,15 @@ const ProviderProfile = () => {
   return (
     <>
       <ProviderNavbar />
+      {!userHasLocation && (
+        <div className="bg-yellow-100 text-yellow-800 text-sm text-center py-2 px-4">
+          ⚠️ You haven't added your location.{" "}
+          <a href="/provider/profile" className="underline text-blue-600 hover:text-blue-800">
+            Click here to set 
+          </a>
+        </div>
+      )}
+
       <div className="max-w-4xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-6 text-green-700">My Profile</h1>
 
@@ -186,6 +214,7 @@ const ProviderProfile = () => {
         )}
 
         </div>
+        <LocationSection />
       </div>
     </>
   );
