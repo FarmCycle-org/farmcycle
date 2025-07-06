@@ -183,6 +183,7 @@ exports.getAvailableWastes = async (req, res) => {
             status: 1,
             distance: 1,
             createdBy: {
+              _id: "$provider._id",
               name: "$provider.name",
               organization: "$provider.organization"
             }

@@ -31,14 +31,17 @@ const CollectorNavbar = () => {
   }, []);
 
   return (
-    <nav className="bg-black text-white px-6 py-4 flex justify-between items-center shadow-md">
-      <h1 className="text-xl font-bold">♻️ FarmCycle</h1>
+    <nav className="mx-auto flex justify-between items-center py-4 px-6 bg-emerald-600 w-full shadow-md">
+      <Link to="/collector/dashboard" className="text-2xl font-bold text-gray-800 ">
+        FarmCycle
+      </Link>
       <ul className="flex space-x-6 text-lg">
-        <li><Link to="/collector/dashboard" className="hover:underline">Dashboard</Link></li>
-        <li><Link to="/collector/browse" className="hover:underline">Browse</Link></li>
-        <li><Link to="/collector/my-requests" className="hover:underline">My Requests</Link></li>
-        <li><Link to="/collector/profile" className="hover:underline">Profile</Link></li>
-        <li><Link to="/collector/history" className="hover:underline">History</Link></li>
+        <li><Link to="/collector/dashboard" className="text-white hover:text-gray-800">Dashboard</Link></li>
+        <li><Link to="/collector/browse" className="text-white hover:text-gray-800">Browse</Link></li>
+        <li><Link to="/collector/my-requests" className="text-white hover:text-gray-800">My Requests</Link></li>
+        <li><Link to="/collector/notifications" className="text-white hover:text-gray-800">Notifications</Link></li>
+        <li><Link to="/collector/profile" className="text-white hover:text-gray-800">Profile</Link></li>
+        <li><Link to="/collector/history" className="text-white hover:text-gray-800">History</Link></li>
       </ul>
       <div className="flex items-center gap-4">
         {profilePic && (
@@ -50,7 +53,7 @@ const CollectorNavbar = () => {
         )}
         <button
           onClick={handleLogout}
-          className="bg-white text-green-700 px-4 py-2 rounded hover:bg-green-100 font-semibold"
+          className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-black font-semibold"
         >
           Logout
         </button>
