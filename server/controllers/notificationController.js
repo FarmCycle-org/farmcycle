@@ -33,3 +33,22 @@ exports.markAsRead = async (req, res) => {
     res.status(500).json({ message: "Error updating notification" });
   }
 };
+
+// Permanently delete a notification
+exports.deleteNotification = async (req, res) => {
+  try {
+    const notification = await Notification.findOneAndDelete({
+      _id: req.params.id,
+      recipient: req.user.id,
+    });
+
+    if (!notification) {
+      return res.status(404).json({ message: "Notification not found" });
+    }
+
+    res.json({ message: "Notification deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error deleting notification" });
+  }
+};

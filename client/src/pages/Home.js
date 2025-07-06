@@ -329,7 +329,7 @@ export default function Home() {
 <ImpactSection />
 
       {/* CALL TO ACTION */}
-      <section className="container mx-auto text-center py-16 px-6">
+      <section className="container mx-auto text-center py-16 px-6 bg-green-50">
         <h3 className="text-3xl font-bold mb-4">Ready to Make a Difference?</h3>
         <p className="text-gray-600 mb-6">
           Join FarmCycle today and help create a sustainable future.
