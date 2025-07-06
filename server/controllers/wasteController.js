@@ -7,7 +7,7 @@ const User= require("../models/User");
 // //Create waste listing
 exports.createWaste = async (req, res) => {
   try {
-    // Validate latitude and longitude
+    // Validate latitude and longitude 
     if (!req.body.latitude || !req.body.longitude) {
       return res.status(400).json({ message: "Latitude and longitude are required." });
     }

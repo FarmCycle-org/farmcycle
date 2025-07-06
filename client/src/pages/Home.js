@@ -1,5 +1,7 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, {useEffect} from "react";
+import { Link, useLocation } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
@@ -11,32 +13,26 @@ import FarmCycleIllustration2 from '../assets/how-it-works.png';
 import ImpactSection from "./Impact";
 
 export default function Home() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      // Small delay to ensure the component has rendered and elements are in DOM
+      const timer = setTimeout(() => {
+        const element = document.getElementById(location.hash.substring(1)); // Remove '#'
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100); 
+      return () => clearTimeout(timer); // Clean up the timer
+    }
+  }, [location]); // Re-run effect when location changes (specifically hash)
+
   return (
     <div className="bg-[white] text-gray-800">
 
       {/* NAVBAR */}
-      <nav className="mx-auto flex justify-between items-center py-4 px-6 bg-emerald-600 w-full">
-       {/* Left Side: Logo + Quick Links */}
-       <div className="flex items-center space-x-8">
-       <h1 className="text-2xl font-bold text-gray-800">FarmCycle</h1>
-       <div className="hidden md:flex space-x-4">
-        <a href="#home" className="text-white hover:text-gray-800">Home</a>
-        <a href="#how-it-works" className="text-white hover:text-gray-800">How It Works</a>
-        <a href="#why-choose" className="text-white hover:text-gray-800">Benefits</a>
-        <a href="#impact" className="text-white hover:text-gray-800">Impact</a>
-        <a href="#testimonials" className="text-white hover:text-gray-800">Reviews</a>
-     </div>
-  </div>
-  {/* Right Side: Login/Register */}
-  <div className="space-x-4">
-    <Link to="/login" className="text-white hover:text-gray-800">
-      Login
-    </Link>
-    <Link to="/register" className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-black">
-      Get Started
-    </Link>
-  </div>
-</nav>
+       <Navbar/>
 
       {/* Hero */}
       <section id="home" className="container mx-auto flex flex-col md:flex-row items-center py-16 px-6">
@@ -343,68 +339,8 @@ export default function Home() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-emerald-600 text-white py-10">
-  <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
-    {/* About */}
-    <div>
-      <h4 className="text-lg font-semibold mb-4">About FarmCycle</h4>
-      <p className="text-sm">
-        FarmCycle connects waste providers and collectors to promote a zero-waste ecosystem. We make it easy to recycle, compost, and create a sustainable impact.
-      </p>
-    </div>
-
-    {/* Quick Links */}
-    <div>
-      <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
-      <ul className="space-y-2 text-sm">
-        <li>Home</li>
-        <li>How It Works</li>
-        <li>Why Choose Us</li>
-        <li>Testimonials</li>
-        <li>Get Started</li>
-      </ul>
-    </div>
-
-    {/* Resources */}
-    <div>
-      <h4 className="text-lg font-semibold mb-4">Resources</h4>
-      <ul className="space-y-2 text-sm">
-        <li>Blog</li>
-        <li>FAQs</li>
-        <li>Help Center</li>
-        <li>Terms & Conditions</li>
-        <li>Privacy Policy</li>
-      </ul>
-    </div>
-
-    {/* Contact */}
-    <div>
-      <h4 className="text-lg font-semibold mb-4">Contact Us</h4>
-      <p className="text-sm mb-2">support@farmcycle.app</p>
-      <p className="text-sm mb-2">+91 98765 43210</p>
-      <p className="text-sm">Thapar University, Patiala, India</p>
-      <div className="flex space-x-4 mt-4">
-        {/* Social Icons */}
-        <span className="w-8 h-8 bg-white text-green-700 rounded-full flex items-center justify-center">
-          <i className="fab fa-facebook-f"></i>
-        </span>
-        <span className="w-8 h-8 bg-white text-green-700 rounded-full flex items-center justify-center">
-          <i className="fab fa-twitter"></i>
-        </span>
-        <span className="w-8 h-8 bg-white text-green-700 rounded-full flex items-center justify-center">
-          <i className="fab fa-instagram"></i>
-        </span>
-        <span className="w-8 h-8 bg-white text-green-700 rounded-full flex items-center justify-center">
-          <i className="fab fa-linkedin-in"></i>
-        </span>
-      </div>
-    </div>
-  </div>
-  <div className="text-center text-sm mt-8 border-t border-green-600 pt-4">
-    © {new Date().getFullYear()} FarmCycle. Made by Amol and Gurnoor.
-  </div>
-</footer>
-
+      <Footer/>
+      
     </div>
   );
 }
