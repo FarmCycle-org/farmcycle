@@ -15,6 +15,7 @@ const impactFactors = {
 const CollectorDashboard = () => {
   const [claimedItems, setClaimedItems] = useState([]);
   const [stats, setStats] = useState({});
+  const [userHasLocation, setUserHasLocation] = useState(true);
 
   useEffect(() => {
     const fetchClaims = async () => {
@@ -34,6 +35,23 @@ const CollectorDashboard = () => {
 
     fetchClaims();
   }, []);
+
+  useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get("http://localhost:5000/api/users/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const coords = res.data?.location?.coordinates;
+      setUserHasLocation(Array.isArray(coords) && coords.length === 2);
+    } catch (err) {
+      console.error("Failed to check user location:", err);
+    }
+  };
+
+  fetchUser();
+}, []);
 
   const calculateStats = (claims) => {
     const accepted = claims.filter((claim) => claim.status === "accepted");
@@ -68,6 +86,14 @@ const CollectorDashboard = () => {
   return (
     <>
       <CollectorNavbar />
+      {!userHasLocation && (
+        <div className="bg-yellow-100 text-yellow-800 text-sm text-center py-2 px-4">
+          ⚠️ You haven't added your location.{" "}
+          <a href="/collector/profile" className="underline text-blue-600 hover:text-blue-800">
+            Click here to set 
+          </a>
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <h1 className="text-4xl font-semibold text-green-700 mb-14 text-center">Collector Dashboard</h1>
 
