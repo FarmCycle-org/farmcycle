@@ -12,10 +12,10 @@ export default function Navbar() {
         <div className="hidden md:flex space-x-4">
           {/* Change <a> to <Link> and use `to` prop with path + hash */}
           <Link to="/#home" className="text-white hover:text-gray-800">Home</Link>
-          <Link to="/#how-it-works" className="text-white hover:text-gray-800">How It Works</Link>
           <Link to="/#why-choose" className="text-white hover:text-gray-800">Benefits</Link>
-          <Link to="/#impact" className="text-white hover:text-gray-800">Impact</Link>
+          <Link to="/#how-it-works" className="text-white hover:text-gray-800">How It Works</Link>
           <Link to="/#testimonials" className="text-white hover:text-gray-800">Reviews</Link>
+          <Link to="/#impact" className="text-white hover:text-gray-800">Impact</Link>
         </div>
       </div>
       <div className="space-x-4">
