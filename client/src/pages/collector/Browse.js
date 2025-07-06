@@ -7,6 +7,15 @@ import L from "leaflet";
 import "leaflet-fullscreen";
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
 
+const WASTE_TYPES = ["organic", "plastic", "metal", "paper", "e-waste", "other"];
+
+// --- NEW: List of Organization Types ---
+const ORGANIZATION_TYPES = [
+  'restaurant', 'hotel','catering service', 'school/university','corporate office', 'solo', 'household',
+     'grocery store', 'vendor', 'factory', 'farm', 'recycling center', 'composting unit', 'environmental NGO'
+];
+// --- END NEW ---
+
 const Browse = () => {
   const [wasteItems, setWasteItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,16 +24,41 @@ const Browse = () => {
   const [claimedWasteIds, setClaimedWasteIds] = useState([]);
   const [selectedWaste, setSelectedWaste] = useState(null);
   const [claimMessage, setClaimMessage] = useState("");
-  // New state to store provider ratings
   const [providerRatings, setProviderRatings] = useState({});
 
-  const fetchWasteAndClaims = async () => {
+  // --- Filter States ---
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [filters, setFilters] = useState({
+    wasteType: "",
+    minQuantity: "",
+    maxQuantity: "",
+    organization: "", // This will now hold one of the ORGANIZATION_TYPES
+    createdAfter: "",
+    createdBefore: "",
+  });
+
+  // Custom Message Box State and Function (replaces alert)
+  const [messageBox, setMessageBox] = useState({ visible: false, message: "", type: "" });
+
+  const showCustomMessageBox = (message, type) => {
+    setMessageBox({ visible: true, message, type });
+    setTimeout(() => {
+      setMessageBox({ visible: false, message: "", type: "" });
+    }, 3000); // Hide after 3 seconds
+  };
+
+  // Function to fetch waste listings with filters
+  const fetchWasteAndClaims = async (filterParams = {}) => {
     try {
-      setLoading(true); // <- in case user clicks Refresh button
+      setLoading(true);
       const token = localStorage.getItem("token");
 
+      // Construct query parameters
+      const queryParams = new URLSearchParams(filterParams).toString();
+      const wasteUrl = `http://localhost:5000/api/waste${queryParams ? `?${queryParams}` : ""}`;
+
       // Fetch waste listings
-      const wasteRes = await axios.get("http://localhost:5000/api/waste", {
+      const wasteRes = await axios.get(wasteUrl, {
         headers: { "Authorization": `Bearer ${token}`, "Cache-Control": "no-cache" },
       });
       setWasteItems(wasteRes.data);
@@ -44,7 +78,7 @@ const Browse = () => {
         .map((claim) => claim.waste._id);
       setClaimedWasteIds(claimedIds);
 
-      // --- New: Fetch average ratings for providers ---
+      // Fetch average ratings for providers
       const uniqueProviderIds = [...new Set(wasteRes.data.map(item => item.createdBy?._id).filter(Boolean))];
       const ratingsPromises = uniqueProviderIds.map(async (providerId) => {
         try {
@@ -52,7 +86,7 @@ const Browse = () => {
           return { providerId, data: ratingRes.data };
         } catch (ratingErr) {
           console.error(`Error fetching rating for provider ${providerId}:`, ratingErr);
-          return { providerId, data: { avgRating: null, numReviews: 0 } }; // Return default if error
+          return { providerId, data: { avgRating: null, numReviews: 0 } };
         }
       });
 
@@ -62,7 +96,6 @@ const Browse = () => {
         return acc;
       }, {});
       setProviderRatings(newProviderRatings);
-      // --- End New ---
 
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -74,8 +107,7 @@ const Browse = () => {
 
   useEffect(() => {
     fetchWasteAndClaims();
-  }, []);
-
+  }, []); // Initial fetch without filters
 
   const handleClaimSubmit = async () => {
     if (!selectedWaste) return;
@@ -92,31 +124,47 @@ const Browse = () => {
         }
       );
       setClaimedWasteIds((prev) => [...prev, selectedWaste._id]);
-      // Replace alert with a custom message box for better UX
-      // alert("Claim submitted successfully!");
       showCustomMessageBox("Claim submitted successfully!", "success");
       setSelectedWaste(null);
       setClaimMessage("");
     } catch (err) {
       console.error("Error submitting claim:", err);
-      // Replace alert with a custom message box for better UX
-      // alert("Failed to submit claim.");
       showCustomMessageBox("Failed to submit claim.", "error");
     } finally {
       setClaimingId(null);
     }
   };
 
-  // Custom Message Box State and Function (replaces alert)
-  const [messageBox, setMessageBox] = useState({ visible: false, message: "", type: "" });
-
-  const showCustomMessageBox = (message, type) => {
-    setMessageBox({ visible: true, message, type });
-    setTimeout(() => {
-      setMessageBox({ visible: false, message: "", type: "" });
-    }, 3000); // Hide after 3 seconds
+  // --- Filter Handlers ---
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value,
+    }));
   };
 
+  const applyFilters = () => {
+    // Clean up empty filter values before sending
+    const cleanedFilters = Object.fromEntries(
+      Object.entries(filters).filter(([_, value]) => value !== "")
+    );
+    fetchWasteAndClaims(cleanedFilters);
+    setShowFilterModal(false); // Close modal after applying
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      wasteType: "",
+      minQuantity: "",
+      maxQuantity: "",
+      organization: "",
+      createdAfter: "",
+      createdBefore: "",
+    });
+    fetchWasteAndClaims({}); // Fetch all wastes
+    setShowFilterModal(false); // Close modal
+  };
 
   if (loading) return <div className="text-center mt-10 text-lg">Loading waste items...</div>;
   if (error) return <div className="text-center mt-10 text-red-600">{error}</div>;
@@ -134,6 +182,30 @@ const Browse = () => {
       <div className="max-w-6xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-semibold text-green-700 mb-6 text-center">Available Waste Items</h1>
 
+        {/* Filter Button */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={() => setShowFilterModal(true)}
+            className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg flex items-center"
+          >
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V19l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+              ></path>
+            </svg>
+            Filter
+          </button>
+        </div>
+
         {wasteItems.length === 0 ? (
           <p className="text-center text-gray-500">No waste items available.</p>
         ) : (
@@ -147,7 +219,7 @@ const Browse = () => {
               return (
                 <div
                   key={waste._id}
-                  className="bg-white rounded-xl shadow hover:shadow-md transition cursor-pointer flex h-52 overflow-hidden relative" // Added relative for absolute positioning of rating
+                  className="bg-white rounded-xl shadow hover:shadow-md transition cursor-pointer flex h-52 overflow-hidden relative"
                   onClick={() => setSelectedWaste(waste)}
                 >
                   {/* Rating display on top-right */}
@@ -173,7 +245,7 @@ const Browse = () => {
                   <div className="p-4 flex-1 relative">
                     <h2 className="text-xl font-bold text-green-800">{waste.title}</h2>
                     <p className="text-sm text-gray-500 mt-5">
-                      Quantity: <strong>{waste.quantity || "N/A"}</strong>
+                      Quantity: <strong>{waste.quantity || "N/A"} Kg</strong>
                     </p>
                     <p className="text-sm text-gray-500 mt-1">
                       Waste Type: <strong>{waste.wasteType?.toUpperCase() || "N/A"}</strong>
@@ -184,6 +256,11 @@ const Browse = () => {
                     {waste.location?.coordinates && (
                       <p className="text-sm text-gray-500 mt-1">
                         Location: [{waste.location.coordinates[1].toFixed(4)}, {waste.location.coordinates[0].toFixed(4)}]
+                      </p>
+                    )}
+                    {waste.distance !== undefined && ( // Display distance if available from geoNear
+                      <p className="text-sm text-gray-500 mt-1">
+                        Distance: <strong>{(waste.distance / 1000).toFixed(2)} km</strong>
                       </p>
                     )}
                     <p className="text-xs text-gray-400 mt-7">
@@ -210,7 +287,139 @@ const Browse = () => {
         </div>
       )}
 
-      {/* Claim Modal */}
+      {/* Filter Modal */}
+      {showFilterModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-lg relative">
+            <button
+              onClick={() => setShowFilterModal(false)}
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl"
+            >
+              ×
+            </button>
+            <h2 className="text-2xl font-bold text-green-700 mb-4">Filter Waste Items</h2>
+
+            <div className="mb-4">
+              <label htmlFor="wasteType" className="block text-gray-700 text-sm font-bold mb-2">
+                Waste Type:
+              </label>
+              <select
+                id="wasteType"
+                name="wasteType"
+                value={filters.wasteType}
+                onChange={handleFilterChange}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              >
+                <option value="">All Types</option>
+                {WASTE_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mb-4 flex space-x-4">
+              <div className="w-1/2">
+                <label htmlFor="minQuantity" className="block text-gray-700 text-sm font-bold mb-2">
+                  Min Quantity:
+                </label>
+                <input
+                  type="number"
+                  id="minQuantity"
+                  name="minQuantity"
+                  value={filters.minQuantity}
+                  onChange={handleFilterChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="e.g., 10"
+                />
+              </div>
+              <div className="w-1/2">
+                <label htmlFor="maxQuantity" className="block text-gray-700 text-sm font-bold mb-2">
+                  Max Quantity:
+                </label>
+                <input
+                  type="number"
+                  id="maxQuantity"
+                  name="maxQuantity"
+                  value={filters.maxQuantity}
+                  onChange={handleFilterChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="e.g., 100"
+                />
+              </div>
+            </div>
+
+            {/* --- UPDATED: Organization Filter as Dropdown --- */}
+            <div className="mb-4">
+              <label htmlFor="organization" className="block text-gray-700 text-sm font-bold mb-2">
+                Organization Type:
+              </label>
+              <select
+                id="organization"
+                name="organization"
+                value={filters.organization}
+                onChange={handleFilterChange}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              >
+                <option value="">All Organizations</option>
+                {ORGANIZATION_TYPES.map((orgType) => (
+                  <option key={orgType} value={orgType}>
+                    {orgType.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {/* --- END UPDATED --- */}
+
+            <div className="mb-4 flex space-x-4">
+              <div className="w-1/2">
+                <label htmlFor="createdAfter" className="block text-gray-700 text-sm font-bold mb-2">
+                  Posted After:
+                </label>
+                <input
+                  type="date"
+                  id="createdAfter"
+                  name="createdAfter"
+                  value={filters.createdAfter}
+                  onChange={handleFilterChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
+              </div>
+              <div className="w-1/2">
+                <label htmlFor="createdBefore" className="block text-gray-700 text-sm font-bold mb-2">
+                  Posted Before:
+                </label>
+                <input
+                  type="date"
+                  id="createdBefore"
+                  name="createdBefore"
+                  value={filters.createdBefore}
+                  onChange={handleFilterChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={clearFilters}
+                className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              >
+                Clear Filters
+              </button>
+              <button
+                onClick={applyFilters}
+                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              >
+                Apply Filters
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Claim Modal (unchanged) */}
       {selectedWaste && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-0 w-full max-w-4xl shadow-lg flex overflow-hidden relative">
@@ -227,7 +436,7 @@ const Browse = () => {
               )}
             </div>
 
-            {/* Box A: Existing Modal Content (unchanged) */}
+            {/* Box A: Existing Modal Content */}
             <div className="w-1/2 p-6 relative">
               <button
                 onClick={() => {
@@ -236,7 +445,7 @@ const Browse = () => {
                 }}
                 className="absolute top-0 right-0 w-10 text-gray-500 hover:bg-red-500 text-3xl"
               >
-                &times;
+                ×
               </button>
 
               <h2 className="text-3xl font-bold text-green-700 mb-2">
@@ -244,7 +453,7 @@ const Browse = () => {
               </h2>
               <p className="text-xl text-gray-600 mb-1">{selectedWaste.description || "No description provided."}</p>
               <p className="text-base text-gray-500 mb-1">
-                Quantity: <strong>{selectedWaste.quantity || "N/A"}</strong>
+                Quantity: <strong>{selectedWaste.quantity || "N/A"} Kg</strong>
               </p>
               <p className="text-base text-gray-500 mb-1">
                 Waste type: <strong>{selectedWaste.wasteType?.toUpperCase() || "N/A"}</strong>
@@ -268,7 +477,7 @@ const Browse = () => {
                     scrollWheelZoom={true} zoomControl={true} fullscreenControl={true}
                   >
                     <TileLayer
-                      attribution='&copy; OpenStreetMap contributors'
+                      attribution='© OpenStreetMap contributors'
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
                     <Marker
@@ -288,7 +497,7 @@ const Browse = () => {
                 )}
               </div>
               <a
-                href={`https://www.google.com/maps?q=${selectedWaste.location.coordinates[1]},${selectedWaste.location.coordinates[0]}`}
+                href={`https://maps.google.com/maps?q={selectedWaste.location.coordinates[1]},${selectedWaste.location.coordinates[0]}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 underline"
