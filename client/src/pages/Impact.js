@@ -2,13 +2,13 @@
 
 import React from "react";
 import CountUp from "react-countup";
-import { FaLeaf, FaRecycle, FaCloud, FaUsers, FaTruck } from "react-icons/fa";
+import { FaLeaf, FaRecycle, FaCloud, FaUsers, FaTruck, FaWater } from "react-icons/fa"; // Import FaWater icon
 
 const ImpactSection = () => {
   return (
     <section id="impact" className="py-16 bg-green-50">
       <div className="max-w-7xl mx-auto px-4">
-        {/* Heading */}
+
         <h2 className="text-3xl md:text-4xl font-bold text-green-900 mb-4 text-left">
           Our Impact So Far
         </h2>
@@ -29,15 +29,15 @@ const ImpactSection = () => {
           </div>
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-xl text-center font-semibold text-green-800 mb-2">
-              Plastic Bottles
+              Water Saved
             </h3>
             <p className="text-green-700">
-              Recycling 1 bottle saves enough energy to power a bulb for 6 hours.
+              Composting 1 ton of organic waste can save thousands of liters of water.
             </p>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-xl text-center font-semibold text-green-800 mb-2">
-            Compost
+              Compost
             </h3>
             <p className="text-green-700">
               1 ton of composted waste returns 200 kg of nutrients to soil.
@@ -45,13 +45,12 @@ const ImpactSection = () => {
           </div>
         </div>
 
-        {/* Achievements */}
         <div className="grid md:grid-cols-3 gap-8">
           {/* Waste Diverted */}
           <div className="flex flex-col items-center bg-white rounded-lg shadow p-6">
             <FaRecycle className="text-4xl text-green-600 mb-2" />
             <CountUp end={3500} duration={3} separator="," className="text-3xl font-bold text-green-900" />
-            <p className="text-green-700 mt-1">kg Waste Diverted</p>
+            <p className="text-green-700 mt-1">kg Organic Waste Diverted</p> {/* Clarified "Organic Waste" */}
           </div>
 
           {/* CO2 Prevented */}
@@ -61,11 +60,11 @@ const ImpactSection = () => {
             <p className="text-green-700 mt-1">kg CO2 Emissions Prevented</p>
           </div>
 
-          {/* Bottles Reused */}
+          {/* Liters Water Saved */}
           <div className="flex flex-col items-center bg-white rounded-lg shadow p-6">
-            <FaRecycle className="text-4xl text-green-600 mb-2" />
-            <CountUp end={5200} duration={3} separator="," className="text-3xl font-bold text-green-900" />
-            <p className="text-green-700 mt-1">Bottles Reused</p>
+            <FaWater className="text-4xl text-green-600 mb-2" /> {/* Changed icon to FaWater */}
+            <CountUp end={150000} duration={3} separator="," className="text-3xl font-bold text-green-900" /> {/* Adjusted count */}
+            <p className="text-green-700 mt-1">Liters Water Saved</p> {/* Changed text */}
           </div>
 
           {/* Compost Generated */}

@@ -7,10 +7,11 @@ import { FaCloud, FaBox, FaCheckCircle } from 'react-icons/fa'; // Import Font A
 const COLORS = ["#4CAF50", "#FF9800", "#2196F3", "#9C27B0", "#F44336", "#607D8B"];
 
 const impactFactors = {
-  plastic: { co2: 1.5 },
-  paper: { trees: 0.017 },
-  metal: { co2: 3 },
-  organic: { co2: 0.25 },
+  "Food Scraps": { co2: 0.25 },
+  "Yard/Garden Waste": { co2: 0.25 },
+  "Agricultural Waste": { co2: 0.25 },
+  "Compostable Paper/Cardboard": { trees: 0.017 },
+  "Other Organic Material": { co2: 0.25 },
 };
 
 const CollectorDashboard = () => {

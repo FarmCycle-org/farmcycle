@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
 
 export default function Footer() {
   return (
@@ -13,21 +14,21 @@ export default function Footer() {
         <div>
           <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
           <ul className="space-y-2 text-sm">
-            <li>Home</li>
-            <li>How It Works</li>
-            <li>Why Choose Us</li>
-            <li>Testimonials</li>
-            <li>Get Started</li>
+            <li><Link to="/#home" className="hover:underline">Home</Link></li>
+            <li><Link to="/#how-it-works" className="hover:underline">How It Works</Link></li>
+            <li><Link to="/#why-choose" className="hover:underline">Why Choose Us</Link></li>
+            <li><Link to="/#testimonials" className="hover:underline">Reviews</Link></li> 
+            <li><Link to="/register" className="hover:underline">Get Started</Link></li>
           </ul>
         </div>
         <div>
           <h4 className="text-lg font-semibold mb-4">Resources</h4>
           <ul className="space-y-2 text-sm">
-            <li>Blog</li>
-            <li>FAQs</li>
-            <li>Help Center</li>
-            <li>Terms & Conditions</li>
-            <li>Privacy Policy</li>
+            <li><Link to="/blog" className="hover:underline">Blog</Link></li>
+            <li><Link to="/faqs" className="hover:underline">FAQs</Link></li>
+            <li><Link to="/help-center" className="hover:underline">Help Center</Link></li>
+            <li><Link to="/terms-conditions" className="hover:underline">Terms & Conditions</Link></li>
+            <li><Link to="/privacy-policy" className="hover:underline">Privacy Policy</Link></li>
           </ul>
         </div>
         <div>
@@ -36,6 +37,7 @@ export default function Footer() {
           <p className="text-sm mb-2">+91 98765 43210</p>
           <p className="text-sm">Thapar University, Patiala, India</p>
           <div className="flex space-x-4 mt-4">
+
             <span className="w-8 h-8 bg-white text-green-700 rounded-full flex items-center justify-center">
               <i className="fab fa-facebook-f"></i>
             </span>
