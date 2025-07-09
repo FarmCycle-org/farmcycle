@@ -64,18 +64,19 @@ exports.changePassword = async (req, res) => {
 // Upload profile picture
 exports.uploadProfilePicture = async (req, res) => {
   try {
-    // multer adds the file info in req.file
     if (!req.file || !req.file.path) {
       return res.status(400).json({ message: "No image provided" });
     }
 
-    // Update user's profilePic URL in DB
-    req.user.profilePictureUrl = req.file.path;
-    await req.user.save();
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { profilePictureUrl: req.file.path },
+      { new: true, runValidators: false }  // ✅ SKIP schema validation
+    );
 
     res.json({
       message: "Profile picture updated successfully",
-      profilePictureUrl: req.user.profilePictureUrl,
+      profilePictureUrl: updatedUser.profilePictureUrl,
     });
   } catch (err) {
     console.error(err);
@@ -83,19 +84,21 @@ exports.uploadProfilePicture = async (req, res) => {
   }
 };
 
+
 //delete profile pic
 exports.deleteProfilePicture = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
-    if (!user.profilePictureUrl) {
+
+    if (!user || !user.profilePictureUrl) {
       return res.status(400).json({ message: "No profile picture to delete" });
     }
 
-    // Optional: delete from Cloudinary by public ID
-    // You need to store public_id separately if you want to do this
-
-    user.profilePictureUrl = "";
-    await user.save();
+    await User.findByIdAndUpdate(
+      req.user.id,
+      { profilePictureUrl: "" },
+      { runValidators: false }
+    );
 
     res.json({ message: "Profile picture removed" });
   } catch (err) {
@@ -103,6 +106,7 @@ exports.deleteProfilePicture = async (req, res) => {
     res.status(500).json({ message: "Error removing profile picture" });
   }
 };
+
 
 // Delete logged-in user's account and related data (On-cascade Delete)
 exports.deleteMyAccount = async (req, res) => {

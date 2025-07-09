@@ -129,7 +129,7 @@ export default function Home() {
   <div className="container mx-auto px-4">
     <div className="grid md:grid-cols-2 gap-12 items-center">
       
-      <div>
+      <div className="ml-10">
         <h2 className="text-4xl font-bold mb-4 text-left">
           How FarmCycle Works
         </h2>
