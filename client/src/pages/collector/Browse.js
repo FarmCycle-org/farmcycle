@@ -7,14 +7,16 @@ import L from "leaflet";
 import "leaflet-fullscreen";
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
 
-const WASTE_TYPES = ["organic", "plastic", "metal", "paper", "e-waste", "other"];
+const WASTE_TYPES = ["Food Scraps",
+        "Yard/Garden Waste",
+        "Agricultural Waste",
+        "Compostable Paper/Cardboard",
+        "Other Organic Material"];
 
-// --- NEW: List of Organization Types ---
 const ORGANIZATION_TYPES = [
   'restaurant', 'hotel','catering service', 'school/university','corporate office', 'solo', 'household',
      'grocery store', 'vendor', 'factory', 'farm', 'recycling center', 'composting unit', 'environmental NGO'
 ];
-// --- END NEW ---
 
 const Browse = () => {
   const [wasteItems, setWasteItems] = useState([]);
@@ -32,7 +34,7 @@ const Browse = () => {
     wasteType: "",
     minQuantity: "",
     maxQuantity: "",
-    organization: "", // This will now hold one of the ORGANIZATION_TYPES
+    organization: "", 
     createdAfter: "",
     createdBefore: "",
   });

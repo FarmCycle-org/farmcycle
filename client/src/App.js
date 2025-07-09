@@ -26,6 +26,13 @@ import CollectorNotifications from "./pages/collector/CollectorNotifications.js"
 import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext.js";
 
+import FAQs from "./pages/FAQs.js";
+import Blog from "./pages/Blog.js";
+import HelpCenter from "./pages/HelpCenter.js";
+import TermsAndConditions from "./pages/TermsAndConditions.js";
+import PrivacyPolicy from "./pages/PrivacyPolicy.js";
+
+
 function App() {
 
   const { loading } = useContext(AuthContext);
@@ -36,6 +43,12 @@ function App() {
         <Route path="/" element={<HomePage />}/>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+
+        <Route path="/faqs" element={<FAQs />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/help-center" element={<HelpCenter />} />
+        <Route path="/terms-conditions" element={<TermsAndConditions />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
         {/* Provider Protected routes */}
         <Route element={<ProtectedRoute allowedRoles={["provider"]} />}>
@@ -60,7 +73,6 @@ function App() {
          {/* Optional: fallback 404 or redirect */}
           {/* <Route path="*" element={<NotFound />} /> */}
           
-        {/* Add more routes here */}
 
       </Routes>
     </Router>

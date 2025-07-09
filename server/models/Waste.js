@@ -14,7 +14,11 @@ const wasteSchema = new mongoose.Schema(
     },
     wasteType: {
       type: String,
-      enum: ["organic", "plastic", "metal", "paper", "e-waste", "other"],
+      enum: ["Food Scraps",
+        "Yard/Garden Waste",
+        "Agricultural Waste",
+        "Compostable Paper/Cardboard",
+        "Other Organic Material",],
       required: true,
     },
     location: {

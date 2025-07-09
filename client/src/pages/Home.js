@@ -139,8 +139,18 @@ export default function Home() {
           Whether you're a solo waste provider or managing an organization, you can register your profile, list your waste items with details like type, quantity, and location, and easily schedule pickups with verified collectors. 
           <br /><br />
           Collectors can browse available listings, claim pickups, and contribute to a sustainable ecosystem while reducing landfill burden and promoting circular economy practices.
+          <br /><br />
+          We primarily accept organic biodegradable waste like food scraps, yard trimmings, coffee grounds, and eggshells. For a detailed list of accepted and unaccepted items, please see our dedicated "How it Works" page.
         </p>
-      </div>
+      <div className="text-left mt-4">
+                <Link
+                  to="/faqs" 
+                  className=" text-green-600 underline hover:text-green-700 font-semibold underline-offset-4 hover:underline transition duration-200 ease-in-out" // Subtle text link styling
+                >
+                  Know More about FarmCycle
+                </Link>
+              </div>
+            </div>
       {/* Right Side - Image */}
       <div className="flex justify-center items-center">
         <img
