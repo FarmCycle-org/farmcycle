@@ -4,10 +4,9 @@ export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({ token: "", user: null });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Keep loading state for initial read
 
   useEffect(() => {
-    // Restore from localStorage once on mount
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
 
@@ -18,11 +17,13 @@ const AuthProvider = ({ children }) => {
           user: JSON.parse(user),
         });
       } catch (err) {
-        console.error("Failed to parse user:", err);
+        console.error("Failed to parse user from localStorage:", err);
+        // Clear storage if parsing fails to prevent infinite loop or bad state
+        localStorage.clear();
       }
     }
-    setLoading(false); // Done loading, allow rendering
-  }, []);
+    setLoading(false); // Set loading to false once the initial check is done
+  }, []); // Empty dependency array ensures this runs once on mount
 
   const login = (data) => {
     localStorage.setItem("token", data.token);
@@ -37,7 +38,7 @@ const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ auth, login, logout, loading }}>
-      {!loading && children}
+      {children} {/* <-- ALWAYS RENDER CHILDREN HERE */}
     </AuthContext.Provider>
   );
 };

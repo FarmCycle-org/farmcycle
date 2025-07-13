@@ -16,7 +16,20 @@ const ProviderHistory = () => {
         });
 
         const collectedOnly = res.data.filter(waste => waste.status === "collected");
-        setCollectedWastes(collectedOnly);
+
+        // --- SOLUTION START ---
+        // Sort the collected waste by 'collectedAt' or 'createdAt' in descending order (newest first)
+        const sortedCollectedWastes = collectedOnly.sort((a, b) => {
+          // Prioritize 'collectedAt' as it's more specific to when it became "history"
+          // Fallback to 'createdAt' or MongoDB '_id' timestamp if 'collectedAt' isn't always present
+          const dateA = new Date(a.collectedAt || a.createdAt || a._id.getTimestamp());
+          const dateB = new Date(b.collectedAt || b.createdAt || b._id.getTimestamp());
+          return dateB.getTime() - dateA.getTime(); // Descending order (newest first)
+        });
+
+        setCollectedWastes(sortedCollectedWastes); // Set the sorted waste items
+        // --- SOLUTION END ---
+
       } catch (err) {
         console.error("Error fetching collected waste:", err);
         // Optionally set an error state here

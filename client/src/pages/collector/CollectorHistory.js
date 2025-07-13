@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import CollectorNavbar from "../../components/CollectorNavbar";
 import axios from "axios";
 import Modal from "react-modal";
+import { toast } from 'react-toastify';
 
 Modal.setAppElement("#root");
 
@@ -38,7 +39,18 @@ const CollectorHistory = () => {
           return isRejected || isCollected;
         });
 
-        setHistoryClaims(filtered);
+        // --- SOLUTION START: Sort historyClaims ---
+        const sortedHistoryClaims = filtered.sort((a, b) => {
+          // Prioritize 'updatedAt' if available (e.g., when status changes to collected/rejected)
+          // Otherwise, fall back to 'createdAt' or MongoDB '_id' timestamp
+          const dateA = new Date(a.updatedAt || a.createdAt || a._id.getTimestamp());
+          const dateB = new Date(b.updatedAt || b.createdAt || b._id.getTimestamp());
+          return dateB.getTime() - dateA.getTime(); // Descending order (newest first)
+        });
+
+        setHistoryClaims(sortedHistoryClaims);
+        // --- SOLUTION END: Sort historyClaims ---
+
         setPickups(pickupsRes.data);
         setReviewedPickupIds(reviewsRes.data.map((review) => review.pickup));
       } catch (err) {
@@ -47,7 +59,7 @@ const CollectorHistory = () => {
     };
 
     fetchEverything();
-  }, [token]);
+  }, [token]); // token is a dependency here
 
   const getPickupForClaim = (claimId) => {
     return pickups.find(
@@ -72,7 +84,14 @@ const CollectorHistory = () => {
   const submitReview = async () => {
     try {
       const pickupId = selectedClaim?.pickup?._id;
-      if (!pickupId || rating < 1) return;
+      if (!pickupId || rating < 1) {
+        toast.warn("Please select a pickup and provide a rating.", {
+            position: "top-center",
+            autoClose: 3000,
+            hideProgressBar: true,
+        });
+        return;
+      }
 
       await axios.post(
         "http://localhost:5000/api/reviews",
@@ -84,30 +103,39 @@ const CollectorHistory = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      alert("Review submitted!"); // Retained existing alert for functional consistency
+      toast.success("Review submitted!", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: true,
+      });
+
       setReviewedPickupIds((prev) => [...prev, pickupId]);
       closeModal();
     } catch (err) {
       console.error("Error submitting review:", err);
-      alert("Failed to submit review."); // Retained existing alert for functional consistency
+      toast.error("Failed to submit review.", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+      });
     }
   };
 
   return (
     <>
       <CollectorNavbar />
-      <div className="min-h-screen bg-white py-8"> 
+      <div className="min-h-screen bg-white py-8">
         <div className="max-w-6xl mx-auto px-4">
-          <h1 className="text-4xl font-bold text-green-800 mb-8 text-center tracking-tight"> {/* Larger, bolder heading */}
+          <h1 className="text-4xl font-bold text-green-800 mb-8 text-center tracking-tight">
             My History
           </h1>
 
           {historyClaims.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-md p-6 text-center text-gray-600 text-lg"> 
+            <div className="bg-white rounded-lg shadow-md p-6 text-center text-gray-600 text-lg">
               <p>No past requests found.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> {/* Responsive grid layout */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {historyClaims.map((claim) => {
                 const pickup = getPickupForClaim(claim._id);
                 const isCollected =
@@ -117,7 +145,7 @@ const CollectorHistory = () => {
                 return (
                   <div
                     key={claim._id}
-                    className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200 flex flex-col" /* Enhanced card styling */
+                    className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200 flex flex-col"
                   >
                     <div className="p-5 flex-grow">
                       <h3 className="font-bold text-lg text-green-700 mb-2">
@@ -126,7 +154,7 @@ const CollectorHistory = () => {
                       <p className="text-sm text-gray-600 mb-2">
                         Status:{" "}
                         <span className={`capitalize font-semibold ${
-                            claim.status === "rejected" ? "text-red-600" : "text-green-600" // Color-coded status
+                            claim.status === "rejected" ? "text-red-600" : "text-green-600"
                         }`}>
                           {claim.status === "rejected" ? "Rejected" : "Collected"}
                         </span>
@@ -143,7 +171,7 @@ const CollectorHistory = () => {
                     </div>
 
                     {isCollected && pickup && (
-                      <div className="bg-gray-50 border-t border-gray-100 p-5"> {/* Separated section for collected info */}
+                      <div className="bg-gray-50 border-t border-gray-100 p-5">
                         <p className="text-sm text-gray-600 mb-1">Pickup completed.</p>
                         <p className="text-sm text-gray-500 mb-3">
                           Scheduled Time: {new Date(pickup.scheduledTime).toLocaleString()}
@@ -151,7 +179,7 @@ const CollectorHistory = () => {
                         {!alreadyReviewed ? (
                           <button
                             onClick={() => openModal(claim)}
-                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-md " 
+                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-md "
                           >
                             Submit Review
                           </button>
@@ -177,8 +205,8 @@ const CollectorHistory = () => {
         isOpen={showModal}
         onRequestClose={closeModal}
         contentLabel="Submit Review"
-        className="bg-white p-8 rounded-2xl shadow-xl max-w-lg mx-auto my-20 transform -translate-y-2 scale-95 transition-all duration-300 ease-out" /* Enhanced modal styling */
-        overlayClassName="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center transition-opacity duration-300 ease-in-out" /* Darker, transitioning overlay */
+        className="bg-white p-8 rounded-2xl shadow-xl max-w-lg mx-auto my-20 transform -translate-y-2 scale-95 transition-all duration-300 ease-out"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center transition-opacity duration-300 ease-in-out"
       >
         <h2 className="text-2xl font-bold text-green-700 mb-5 text-center">Submit Your Review</h2>
         <div className="flex justify-center space-x-1 mb-5">
@@ -198,7 +226,7 @@ const CollectorHistory = () => {
           rows={4}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg p-3 mb-6 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 resize-none" /* Styled textarea */
+          className="w-full border border-gray-300 rounded-lg p-3 mb-6 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 resize-none"
           placeholder="Write a comment (optional)..."
         />
         <div className="flex justify-end space-x-4">

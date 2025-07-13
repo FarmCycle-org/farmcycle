@@ -4,6 +4,7 @@ import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
 import { FaTrash } from "react-icons/fa";
 import ProviderNavbar from "../../components/ProviderNavbar"; // Import ProviderNavbar
+import { toast } from 'react-toastify';
 
 const ProviderNotifications = () => {
   const { auth } = useContext(AuthContext);
@@ -30,18 +31,39 @@ const ProviderNotifications = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this notification?")) return; // Added confirmation
-    try {
-      await axios.delete(`http://localhost:5000/api/notifications/${id}`, {
-        headers: { Authorization: `Bearer ${auth.token}` },
-      });
-      setNotifications(notifications.filter((n) => n._id !== id));
-      alert("Notification deleted."); // User feedback
-    } catch (err) {
-      console.error("Error deleting notification:", err);
-      alert("Failed to delete notification."); // User feedback
+    // Keep the window.confirm for critical, irreversible actions like deletion.
+    // Toasts are not a replacement for confirmation dialogs.
+    if (!window.confirm("Are you sure you want to delete this notification?")) {
+        return; // Stop if the user cancels
     }
-  };
+
+    try {
+        await axios.delete(`http://5000/api/notifications/${id}`, {
+            headers: { Authorization: `Bearer ${auth.token}` },
+        });
+
+        // Update your local state to reflect the deletion
+        setNotifications(notifications.filter((n) => n._id !== id));
+
+        // --- Replace alert("Notification deleted."); with toast.success() ---
+        toast.success("Notification deleted.", {
+            position: "bottom-center", // Or your preferred toast position
+            autoClose: 2500,           // A quick display for success
+            hideProgressBar: true,     // Keep it clean
+        });
+
+    } catch (err) {
+        console.error("Error deleting notification:", err);
+
+        // --- Replace alert("Failed to delete notification."); with toast.error() ---
+        toast.error("Failed to delete notification. Please try again.", {
+            position: "bottom-center", // Consistency with success, or choose 'top-center' for errors
+            autoClose: 4000,           // Give users a bit more time to read errors
+            hideProgressBar: false,    // Show the progress bar for errors
+        });
+    }
+};
+
 
   useEffect(() => {
     fetchNotifications();

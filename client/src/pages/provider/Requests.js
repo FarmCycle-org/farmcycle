@@ -37,7 +37,18 @@ const Requests = () => {
           (claim) => claim.waste && claim.waste.status !== "collected"
         );
 
-        setClaims(filteredClaims);
+        // --- SOLUTION START ---
+        // Sort the claims by timestamp (assuming 'createdAt' exists and is a Date string)
+        // Newest claims first (descending order)
+        const sortedClaims = filteredClaims.sort((a, b) => {
+          const dateA = new Date(a.createdAt || a._id.getTimestamp()); // Use createdAt or _id timestamp
+          const dateB = new Date(b.createdAt || b._id.getTimestamp());
+          return dateB.getTime() - dateA.getTime(); // For descending order (newest first)
+        });
+
+        setClaims(sortedClaims); // Set the sorted claims
+        // --- SOLUTION END ---
+
         setPickups(pickupsRes.data);
       } catch (err) {
         console.error("Failed to fetch data:", err);

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute.js";
 
+import { ToastContainer, toast } from 'react-toastify';
 import HomePage from "./pages/Home.js";
 import 'leaflet/dist/leaflet.css';
 
@@ -75,6 +76,17 @@ function App() {
           
 
       </Routes>
+      <ToastContainer
+        position="bottom-center" // Where the toasts will appear on the screen
+        autoClose={3000}       // How long the toast stays visible (3 seconds)
+        hideProgressBar={true} // Hides the small progress bar at the bottom of the toast
+        newestOnTop={false}    // Controls stacking order (newest below older ones)
+        closeOnClick         // Allows clicking the toast to close it
+        pauseOnFocusLoss     // Pause timer if window loses focus
+        draggable            // Allows dragging on touch devices
+        pauseOnHover         // Pause timer on hover
+        theme="light"        // Visual theme: 'light', 'dark', or 'colored'
+      />
     </Router>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ProviderNavbar from "../../components/ProviderNavbar"; // Ensure this path is correct
+import { toast } from 'react-toastify';
 
 const MyListings = () => {
   const [wasteItems, setWasteItems] = useState([]);
@@ -39,16 +40,27 @@ const MyListings = () => {
     };
 
     const fetchUserLocation = async () => {
-      try {
+    try {
         const res = await axios.get("http://localhost:5000/api/users/me", {
-          headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${token}` },
         });
         setUserLocation(res.data.location);
-      } catch (err) {
+
+        // Optional: If you want to confirm location fetch success (less common for background fetches)
+        // toast.info("Your location has been loaded.", { autoClose: 1500 });
+
+    } catch (err) {
         console.error("Error fetching user location:", err);
-        // Optionally alert user to set location if it's critical for listings
-      }
-    };
+        // --- ADD toast.error() or toast.warn() here ---
+        toast.error("Could not fetch your location. Listings might be limited.", {
+            position: "top-center", // A suitable position for a potentially critical issue
+            autoClose: 5000,       // Longer duration for a more important error
+            hideProgressBar: false,
+            // You might even consider an action button here if applicable, e.g.,
+            // onClick: () => { /* open location settings modal */ }
+        });
+    }
+};
 
     fetchMyWaste();
     fetchUserLocation();
@@ -61,13 +73,30 @@ const MyListings = () => {
   const handleAddListing = async (e) => {
     e.preventDefault(); // Prevent default form submission behavior
     const { title, description, quantity, wasteType, image } = formData;
+
+    // --- REPLACE alert("Please fill all fields for the listing."); with toast.warn() ---
     if (!title || !description || !quantity || !wasteType || !image) {
-      alert("Please fill all fields for the listing.");
-      return;
+        toast.warn("Please fill all fields for the listing.", {
+            position: "top-center", // Good for form-related warnings
+            autoClose: 3000,
+            hideProgressBar: true,
+        });
+        return;
     }
+
+    // --- REPLACE alert("Your location is not set. Please update your profile with your location to add listings."); with toast.warn() or toast.error() ---
     if (!userLocation || !userLocation.coordinates || userLocation.coordinates.length !== 2) {
-      alert("Your location is not set. Please update your profile with your location to add listings.");
-      return;
+        // Using toast.error here because it's a critical prerequisite that's missing.
+        // It might also imply a deeper issue if location *should* be set but isn't.
+        toast.error("Your location is not set. Please update your profile with your location to add listings.", {
+            position: "top-center",
+            autoClose: 5000, // Longer duration for a more critical instruction
+            hideProgressBar: false, // Potentially useful to show for more important messages
+            // You could even add an action button here if you had a direct link to the profile settings
+            // onClick: () => navigate('/profile-settings'), // Example using react-router-dom navigate
+            // closeButton: true, // Ensure it has a close button if autoClose is long
+        });
+        return;
     }
 
     try {
@@ -87,36 +116,57 @@ const MyListings = () => {
         },
       });
 
-      setWasteItems((prev) => [...prev, res.data]);
-      setShowAddModal(false); // Changed from setShowModal
-      setFormData({ title: "", description: "", quantity: "", wasteType: "", image: null });
-      alert("Listing added successfully!");
+       setWasteItems((prev) => [...prev, res.data]);
+        setShowAddModal(false); // Changed from setShowModal
+        setFormData({ title: "", description: "", quantity: "", wasteType: "", image: null });
+
+        // --- REPLACE alert("Listing added successfully!"); with toast.success() ---
+        toast.success("Listing added successfully!", {
+            position: "bottom-center", // Or your preferred success toast position
+            autoClose: 2500,           // Quick confirmation
+            hideProgressBar: true,     // Clean appearance for success
+        });
+
     } catch (err) {
-      console.error("Error adding listing:", err);
-      // Log the full error response from the backend if available
-      if (err.response && err.response.data) {
-        console.error("Backend error details:", err.response.data);
-        alert(`Failed to add listing: ${err.response.data.message || 'Please try again.'}`);
-      } else {
-        alert("Failed to add listing. Please try again.");
-      }
+
+        console.error("Error adding listing:", err);
+        // --- REPLACE alert("Failed to add listing. Please try again."); with toast.error() ---
+        toast.error("Failed to add listing. Please try again.", {
+            position: "bottom-center", // Consistency with success toast, or a more prominent spot if preferred for errors
+            autoClose: 4000,           // Slightly longer for error messages
+            hideProgressBar: false,    // Often good to show for errors
+        });
     }
-  };
+};
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/waste/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setWasteItems((prev) => prev.filter((item) => item._id !== id));
-      setShowDeleteModal(false); // Close delete modal after success
-      setWasteToDelete(null); // Reset
-      alert("Listing deleted successfully!");
+        await axios.delete(`http://localhost:5000/api/waste/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setWasteItems((prev) => prev.filter((item) => item._id !== id));
+        setShowDeleteModal(false); // Close delete modal after success
+        setWasteToDelete(null); // Reset
+
+        // --- REPLACE alert("Listing deleted successfully!"); with toast.success() ---
+        toast.success("Listing deleted successfully!", {
+            position: "bottom-center", // Consistent position for success
+            autoClose: 2500,           // Quick confirmation
+            hideProgressBar: true,
+        });
+
     } catch (err) {
-      console.error("Delete error:", err);
-      alert("Failed to delete listing. Please try again.");
+        console.error("Delete error:", err);
+
+        // --- REPLACE alert("Failed to delete listing. Please try again."); with toast.error() ---
+        toast.error("Failed to delete listing. Please try again.", {
+            position: "bottom-center", // Consistent position for errors, or top-center if preferred
+            autoClose: 4000,           // Slightly longer for errors
+            hideProgressBar: false,    // Show progress bar for errors
+        });
     }
-  };
+};
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
@@ -159,15 +209,20 @@ const MyListings = () => {
       );
       setShowEditModal(false);
       setEditWaste(null);
-      alert("Listing updated successfully!");
+      // --- REPLACE alert("Listing updated successfully!"); with toast.success() ---
+      toast.success("Listing updated successfully!", {
+          position: "bottom-center", // Consistent position for success messages
+          autoClose: 2500,           // Quick confirmation
+          hideProgressBar: true,
+      });
     } catch (err) {
       console.error("Update error:", err);
-      if (err.response && err.response.data) {
-        console.error("Backend error details:", err.response.data);
-        alert(`Failed to update listing: ${err.response.data.message || 'Please try again.'}`);
-      } else {
-        alert("Failed to update listing. Please try again.");
-      }
+       // --- REPLACE alert("Failed to update listing. Please try again."); with toast.error() ---
+      toast.error("Failed to update listing. Please try again.", {
+          position: "bottom-center", // Consistent position for error messages, or top-center if preferred
+          autoClose: 4000,           // Slightly longer for errors
+          hideProgressBar: false,    // Show progress bar for errors
+      });
     }
   };
 
