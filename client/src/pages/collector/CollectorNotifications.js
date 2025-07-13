@@ -4,7 +4,7 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
 import { FaTrash } from "react-icons/fa";
-import ProviderNavbar from "../../components/ProviderNavbar"; // Import ProviderNavbar
+import CollectorNavbar from "../../components/CollectorNavbar";
 
 const CollectorNotifications = () => {
   const { auth } = useContext(AuthContext);
@@ -51,7 +51,7 @@ const CollectorNotifications = () => {
 
   return (
     <>
-      <ProviderNavbar /> {/* Added the navbar */}
+      <CollectorNavbar/>
       <div
         className="min-h-screen bg-gray-50 py-8" // Changed background to a consistent light gray
       >
