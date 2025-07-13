@@ -1,3 +1,4 @@
+// LocationSection.js
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
@@ -5,18 +6,18 @@ import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
 import "leaflet/dist/leaflet.css";
 import "leaflet-geosearch/dist/geosearch.css";
 import L from "leaflet";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
-// Fix for default marker icon issue with Webpack
+// Fix leaflet default icon issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
 });
 
 const pinIcon = new L.Icon({
-  iconUrl: "/pin-location.png", // Make sure this file exists in your public folder
+  iconUrl: "/pin-location.png",
   iconSize: [42, 42],
   iconAnchor: [15, 42],
   popupAnchor: [0, -40],
@@ -28,81 +29,68 @@ const LocationSection = () => {
   const [mapVisible, setMapVisible] = useState(false);
   const [markerPosition, setMarkerPosition] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [mapCenter, setMapCenter] = useState([20.5937, 78.9629]); // default India
+  const [mapCenter, setMapCenter] = useState([20.5937, 78.9629]);
 
   const token = localStorage.getItem("token");
 
-  // Function to perform reverse geocoding with caching
   const reverseGeocode = useCallback(async (lat, lng) => {
-    if (!lat || !lng) {
-      setLocationName("Invalid coordinates.");
-      return;
-    }
-
     const cacheKey = `location_name_${lat}_${lng}`;
-    const cachedResult = localStorage.getItem(cacheKey);
-
-    if (cachedResult) {
-      // Use cached result if available
-      setLocationName(cachedResult);
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      setLocationName(cached);
       return;
     }
 
     try {
-      const nominatimUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
-      const response = await axios.get(nominatimUrl, {
-        headers: { 'User-Agent': 'WasteWiseApp/1.0 (your-email@example.com)' }
-      });
+      const { data } = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+        {
+          headers: {
+            "User-Agent": "WasteWiseApp/1.0 (your-email@example.com)",
+          },
+        }
+      );
 
-      if (response.data && response.data.display_name) {
-        const displayName = response.data.display_name;
-        setLocationName(displayName);
-        localStorage.setItem(cacheKey, displayName); // Cache the result
+      if (data?.display_name) {
+        setLocationName(data.display_name);
+        localStorage.setItem(cacheKey, data.display_name);
       } else {
         setLocationName("Location name not found.");
       }
-    } catch (error) {
-      console.error("Error during reverse geocoding:", error);
+    } catch (err) {
+      console.error("Reverse geocode failed:", err);
       setLocationName("Failed to get location name.");
-      // Optionally, show a toast for this specific error to the user
-      toast.error("Failed to fetch location details (rate limit?). Try again later.", {
-          position: "bottom-center",
-          autoClose: 5000,
-          hideProgressBar: false,
-      });
+      toast.error("Reverse geocoding failed. Try again later.");
     }
-  }, []); // No dependencies, as it only uses lat/lng arguments
+  }, []);
 
-  // Effect to fetch user location on component mount
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await axios.get("http://localhost:5000/api/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const fetchedLocation = res.data.location;
-        setUserLocation(fetchedLocation);
+        const loc = res.data.location;
+        setUserLocation(loc);
 
-        if (fetchedLocation && fetchedLocation.coordinates) {
-          const lat = fetchedLocation.coordinates[1];
-          const lng = fetchedLocation.coordinates[0];
-          reverseGeocode(lat, lng);
+        if (loc?.coordinates) {
+          const lat = loc.coordinates[1];
+          const lng = loc.coordinates[0];
           setMapCenter([lat, lng]);
           setMarkerPosition([lat, lng]);
           setMapVisible(true);
+          reverseGeocode(lat, lng);
         } else {
           setLocationName("No location set.");
-          setMapVisible(false);
         }
       } catch (err) {
-        console.error("Error fetching user:", err);
-        setLocationName("Failed to load user location.");
+        console.error("Fetch user failed:", err);
+        setLocationName("Failed to load location.");
       }
     };
     fetchUser();
-  }, [token, reverseGeocode]); // Add reverseGeocode to dependencies
+  }, [token, reverseGeocode]);
 
-  // Function to update location in the backend and then reverse geocode
   const updateLocation = async (lng, lat) => {
     try {
       setLoading(true);
@@ -111,9 +99,7 @@ const LocationSection = () => {
         { longitude: lng, latitude: lat },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      const updatedLocation = res.data.location;
-      setUserLocation(updatedLocation);
-
+      setUserLocation(res.data.location);
       reverseGeocode(lat, lng);
 
       toast.success("Location updated!", {
@@ -121,15 +107,9 @@ const LocationSection = () => {
         autoClose: 2500,
         hideProgressBar: true,
       });
-
-      setMapVisible(true);
     } catch (err) {
-      console.error("Error updating location:", err);
-      toast.error("Failed to update location. Please try again.", {
-        position: "bottom-center",
-        autoClose: 4000,
-        hideProgressBar: false,
-      });
+      console.error("Update location failed:", err);
+      toast.error("Failed to update location. Try again.");
     } finally {
       setLoading(false);
     }
@@ -137,8 +117,8 @@ const LocationSection = () => {
 
   const handleUseCurrentLocation = () => {
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
+      ({ coords }) => {
+        const { latitude, longitude } = coords;
         setMapCenter([latitude, longitude]);
         setMarkerPosition([latitude, longitude]);
         setMapVisible(true);
@@ -146,11 +126,7 @@ const LocationSection = () => {
       },
       (err) => {
         console.error("Geolocation error:", err);
-        toast.error("Failed to get device location. Please enable location services.", {
-          position: "bottom-center",
-          autoClose: 5000,
-          hideProgressBar: false,
-        });
+        toast.error("Failed to get current location.");
       }
     );
   };
@@ -158,7 +134,10 @@ const LocationSection = () => {
   const LocationMarker = () => {
     useMapEvents({
       click(e) {
-        setMarkerPosition([e.latlng.lat, e.latlng.lng]);
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        setMarkerPosition([lat, lng]);
+        updateLocation(lng, lat); // 🔥 update backend right after click
       },
     });
     return markerPosition ? <Marker position={markerPosition} icon={pinIcon} /> : null;
@@ -173,33 +152,32 @@ const LocationSection = () => {
         showMarker: false,
         style: "bar",
         autoClose: true,
-        searchLabel: 'Enter address or place name',
+        searchLabel: "Enter place or address",
       });
+
       map.addControl(searchControl);
 
-      map.on('geosearch/showlocation', (e) => {
-        const { x, y } = e.location; // x is longitude, y is latitude
-        setMarkerPosition([y, x]); // Leaflet uses [lat, lng]
-        setMapCenter([y, x]); // Center map on search result
+      map.on("geosearch/showlocation", (e) => {
+        const { x, y } = e.location;
+        setMarkerPosition([y, x]);
+        setMapCenter([y, x]);
+        updateLocation(x, y); // 🔥 update backend right after search
       });
 
       return () => {
         map.removeControl(searchControl);
-        map.off('geosearch/showlocation');
+        map.off("geosearch/showlocation");
       };
     }, [map]);
+
     return null;
   };
 
   const handleManualSubmit = () => {
     if (markerPosition) {
-      updateLocation(markerPosition[1], markerPosition[0]); // lng, lat
+      updateLocation(markerPosition[1], markerPosition[0]);
     } else {
-      toast.warn("Please select a point on the map by clicking or searching.", {
-        position: "bottom-center",
-        autoClose: 3000,
-        hideProgressBar: true,
-      });
+      toast.warn("Please select a point on the map.");
     }
   };
 
