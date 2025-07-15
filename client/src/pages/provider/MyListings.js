@@ -353,7 +353,7 @@ const MyListings = () => {
                 <option value="Other Organic Material">Other Organic Material</option>
               </select>
               <div>
-                <label htmlFor="imageUpload" className="block text-gray-700 text-sm font-medium mb-2">Upload Image (Optional but Recommended):</label>
+                <label htmlFor="imageUpload" className="block text-gray-700 text-sm font-medium mb-2">Upload Image :</label>
                 <input
                   type="file"
                   id="imageUpload"
