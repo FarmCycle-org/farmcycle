@@ -146,6 +146,7 @@ exports.updateLocation = async (req, res) => {
       return res.status(400).json({ message: "Valid longitude and latitude are required" });
     }
 
+    // Update user location
     const user = await User.findByIdAndUpdate(
       req.user.id,
       {
@@ -157,6 +158,17 @@ exports.updateLocation = async (req, res) => {
       { new: true, runValidators: true }
     ).select("-password");
 
+    // Also update location of all waste listings by this user
+    await Waste.updateMany(
+      { createdBy: user._id },
+      {
+        location: {
+          type: "Point",
+          coordinates: [longitude, latitude]
+        }
+      }
+    );
+
     res.json({
       message: "Location updated successfully",
       location: user.location
@@ -166,3 +178,4 @@ exports.updateLocation = async (req, res) => {
     res.status(500).json({ message: "Error updating location" });
   }
 };
+
