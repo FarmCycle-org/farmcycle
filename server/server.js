@@ -18,7 +18,10 @@ const pickupRoutes = require("./routes/pickupRoutes");
 connectDB();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "https://farmcycle-git-main-amol-singhs-projects.vercel.app", 
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false })); 
 
