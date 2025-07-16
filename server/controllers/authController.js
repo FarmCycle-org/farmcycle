@@ -18,7 +18,6 @@ const registerUser = async (req, res) => {
       location
     } = req.body;
 
-    // Ensure confirmPassword is not included anywhere
     if (!email || !password || !name || !role || !contact || !userType) {
       return res.status(400).json({ message: "Missing required fields" });
     }
@@ -28,12 +27,11 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
+    // ❌ DO NOT hash password manually
     const userData = {
       name,
       email,
-      password: hashedPassword,
+      password, // Keep as plain text, Mongoose hook will hash it
       role,
       contact,
       organization,
@@ -49,7 +47,7 @@ const registerUser = async (req, res) => {
       userData.location = location;
     }
 
-    const user = await User.create(userData);
+    const user = await User.create(userData); // password will be hashed automatically
 
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
       expiresIn: "7d"
@@ -71,6 +69,7 @@ const registerUser = async (req, res) => {
     res.status(500).json({ message: "Registration failed. Try again." });
   }
 };
+
 
 
 const loginUser = async (req, res) => {
