@@ -2,7 +2,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
-import axios from "axios";
+import API from "../api";
 
 const CollectorNavbar = () => {
   const { logout } = useContext(AuthContext);
@@ -18,7 +18,7 @@ const CollectorNavbar = () => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/api/users/me", {
+        const res = await API.get("/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProfilePic(res.data.profilePictureUrl);
