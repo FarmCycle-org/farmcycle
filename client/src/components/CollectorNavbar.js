@@ -2,7 +2,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
-import API from "../api";
+import API from "../services/api";
 
 const CollectorNavbar = () => {
   const { logout } = useContext(AuthContext);

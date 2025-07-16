@@ -1,7 +1,7 @@
 // LocationSection.js
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import API from "../api";
+import API from "../services/api";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
 import "leaflet/dist/leaflet.css";
