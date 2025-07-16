@@ -19,9 +19,10 @@ connectDB();
 
 const app = express();
 app.use(cors({
-  origin: "https://farmcycle-git-main-amol-singhs-projects.vercel.app", 
+  origin: "https://farmcycle.vercel.app", 
   credentials: true
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false })); 
 
