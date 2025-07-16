@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useContext } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import { AuthContext } from "../../context/AuthContext";
 import { FaTrash } from "react-icons/fa";
 import ProviderNavbar from "../../components/ProviderNavbar"; // Import ProviderNavbar
@@ -16,7 +16,7 @@ const ProviderNotifications = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.get("http://localhost:5000/api/notifications", {
+      const res = await API.get("/notifications", {
         headers: {
           Authorization: `Bearer ${auth.token}`,
         },
@@ -38,7 +38,7 @@ const ProviderNotifications = () => {
     }
 
     try {
-        await axios.delete(`http://5000/api/notifications/${id}`, {
+        await API.delete(`/notifications/${id}`, {
             headers: { Authorization: `Bearer ${auth.token}` },
         });
 

@@ -1,7 +1,7 @@
 // src/pages/collector/CollectorNotifications.js
 
 import React, { useEffect, useState, useContext } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import { AuthContext } from "../../context/AuthContext";
 import { FaTrash } from "react-icons/fa";
 import CollectorNavbar from "../../components/CollectorNavbar";
@@ -21,7 +21,7 @@ const CollectorNotifications = () => {
         setLoading(true);
         setError("");
         try {
-            const res = await axios.get("http://localhost:5000/api/notifications", {
+            const res = await API.get("/notifications", {
                 headers: {
                     Authorization: `Bearer ${auth.token}`,
                 },
@@ -50,7 +50,7 @@ const CollectorNotifications = () => {
         const id = notificationToDeleteId; // Get the ID
 
         try {
-            await axios.delete(`http://localhost:5000/api/notifications/${id}`, {
+            await API.delete(`/notifications/${id}`, {
                 headers: { Authorization: `Bearer ${auth.token}` },
             });
             setNotifications(notifications.filter((n) => n._id !== id));

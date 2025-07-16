@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import CollectorNavbar from "../../components/CollectorNavbar";
-import axios from "axios";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet-fullscreen";
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
+import API from "../../services/api";
 
 const WASTE_TYPES = ["Food Scraps",
         "Yard/Garden Waste",
@@ -57,17 +57,17 @@ const Browse = () => {
 
       // Construct query parameters
       const queryParams = new URLSearchParams(filterParams).toString();
-      const wasteUrl = `http://localhost:5000/api/waste${queryParams ? `?${queryParams}` : ""}`;
+      const wasteUrl = `/waste${queryParams ? `?${queryParams}` : ""}`;
 
       // Fetch waste listings
-      const wasteRes = await axios.get(wasteUrl, {
+      const wasteRes = await API.get(wasteUrl, {
         headers: { "Authorization": `Bearer ${token}`, "Cache-Control": "no-cache" },
       });
       setWasteItems(wasteRes.data);
 
       // Fetch user claims
-      const claimsRes = await axios.get(
-        "http://localhost:5000/api/claims/my/claims",
+      const claimsRes = await API.get(
+        "/claims/my/claims",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -84,7 +84,7 @@ const Browse = () => {
       const uniqueProviderIds = [...new Set(wasteRes.data.map(item => item.createdBy?._id).filter(Boolean))];
       const ratingsPromises = uniqueProviderIds.map(async (providerId) => {
         try {
-          const ratingRes = await axios.get(`http://localhost:5000/api/reviews/provider/${providerId}/average`);
+          const ratingRes = await API.get(`/reviews/provider/${providerId}/average`);
           return { providerId, data: ratingRes.data };
         } catch (ratingErr) {
           console.error(`Error fetching rating for provider ${providerId}:`, ratingErr);
@@ -116,8 +116,8 @@ const Browse = () => {
     try {
       setClaimingId(selectedWaste._id);
       const token = localStorage.getItem("token");
-      await axios.post(
-        `http://localhost:5000/api/claims/${selectedWaste._id}/claim`,
+      await API.post(
+        `/claims/${selectedWaste._id}/claim`,
         { message: claimMessage },
         {
           headers: {

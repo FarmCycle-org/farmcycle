@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import CollectorNavbar from "../../components/CollectorNavbar";
-import axios from "axios";
+import API from "../../services/api";
 import Modal from "react-modal";
 import { toast } from 'react-toastify';
 
@@ -21,13 +21,13 @@ const CollectorHistory = () => {
     const fetchEverything = async () => {
       try {
         const [claimsRes, pickupsRes, reviewsRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/claims/my/claims", {
+          API.get("/claims/my/claims", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("http://localhost:5000/api/pickups/my", {
+          API.get("/pickups/my", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("http://localhost:5000/api/reviews/my", {
+          API.get("/reviews/my", {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -93,8 +93,8 @@ const CollectorHistory = () => {
         return;
       }
 
-      await axios.post(
-        "http://localhost:5000/api/reviews",
+      await API.post(
+        "/reviews",
         {
           pickupId,
           rating,
