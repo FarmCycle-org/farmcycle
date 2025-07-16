@@ -80,17 +80,20 @@ const loginUser = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      console.log("❌ No user found for:", email);
+    //   console.log("❌ No user found for:", email);
       return res.status(400).json({ message: "User not found" });
     }
 
-    console.log("✅ User found:", user.email);
-    console.log("🔐 Hashed password in DB:", user.password);
-    console.log("🔑 Entered password:", password);
+    console.log("Entered password:", password);
+    console.log("Type of password:", typeof password);
+    console.log("Password length:", password.length);
+    // console.log("✅ User found:", user.email);
+    // console.log("🔐 Hashed password in DB:", user.password);
+    // console.log("🔑 Entered password:", password);
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      console.log("❌ Password mismatch for:", email);
+    //   console.log("❌ Password mismatch for:", email);
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
@@ -98,7 +101,7 @@ const loginUser = async (req, res) => {
       expiresIn: "7d",
     });
 
-    console.log("✅ Password matched. Generating token for:", email);
+    // console.log("✅ Password matched. Generating token for:", email);
 
     res.status(200).json({
       message: "Successful login",
