@@ -1,6 +1,7 @@
 // LocationSection.js
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
+import API from "../api";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
 import "leaflet/dist/leaflet.css";
@@ -67,7 +68,7 @@ const LocationSection = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/users/me", {
+        const res = await API.get("/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const loc = res.data.location;
@@ -94,8 +95,8 @@ const LocationSection = () => {
   const updateLocation = async (lng, lat) => {
     try {
       setLoading(true);
-      const res = await axios.patch(
-        "http://localhost:5000/api/users/location",
+      const res = await API.patch(
+        "/users/location",
         { longitude: lng, latitude: lat },
         { headers: { Authorization: `Bearer ${token}` } }
       );
