@@ -2,7 +2,6 @@
 
 **FarmCycle** is a hyperlocal web platform that connects **food waste providers** (like households, cafes, and hostels) with **waste collectors** (like farmers, gardeners, NGOs). Our goal is to build a **zero-waste, sustainable ecosystem** that promotes composting and responsible waste management — one neighborhood at a time.
 
----
 
 ## 🚀 Why FarmCycle?
 
