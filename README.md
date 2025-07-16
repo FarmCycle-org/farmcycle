@@ -13,7 +13,6 @@ Every day, tons of organic waste are discarded, while compost users spend resour
 ✅ Organized request tracking, notifications, and history  
 ✅ Encouraging communities to go zero-waste 🌍
 
----
 
 ## ✨ Unique Features
 
@@ -24,7 +23,6 @@ Every day, tons of organic waste are discarded, while compost users spend resour
 - 🛡️ **Role-Based Access**: Users can register as Individuals or Organizations and access tailored features.
 - 🌐 **Zero-Waste Vision**: Designed with sustainability and scalability in mind.
 
----
 
 ## 🖼️ Screenshots
 
@@ -39,7 +37,6 @@ Every day, tons of organic waste are discarded, while compost users spend resour
 ### 🚛 Collector Dashboard
 ![My Requests](screenshots/collector-requests.png)
 
----
 
 ## 🛠️ Tech Stack
 
@@ -56,7 +53,6 @@ Every day, tons of organic waste are discarded, while compost users spend resour
 - **Render** – Backend deployment
 - **(Soon)**: Frontend deployment via Vercel or Netlify
 
----
 
 ## 🔧 Getting Started
 
@@ -90,8 +86,6 @@ MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 ```
 
----
-
 ## 🛤️ Roadmap
 
 - [x] Role-based auth and dashboards
@@ -101,26 +95,6 @@ JWT_SECRET=your_jwt_secret
 - [ ] Geo-based recommendations
 - [ ] Admin dashboard for moderation
 
----
 
-## 🤝 Contributing
-
-Pull requests are welcome! Please open an issue first to discuss your ideas.
-
----
-
-## 📃 License
-
-This project is licensed under the MIT License.
-
----
-
-## 💬 Let’s Connect
-
-Have ideas to make FarmCycle better or want to collaborate on sustainability tech?
-
-📩 Drop us a message at [teamfarmcycle@gmail.com](mailto:teamfarmcycle@gmail.com)
-
----
 
 > **FarmCycle — turning waste into worth, one cycle at a time. ♻️**
