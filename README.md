@@ -1,100 +1,110 @@
-# 🌱 FarmCycle
+# FarmCycle
 
-**FarmCycle** is a hyperlocal web platform that connects **food waste providers** (like households, cafes, and hostels) with **waste collectors** (like farmers, gardeners, NGOs). Our goal is to build a **zero-waste, sustainable ecosystem** that promotes composting and responsible waste management — one neighborhood at a time.
+*FarmCycle* is a hyperlocal web platform that connects food waste providers (like households, cafes, and hostels) with waste collectors (like farmers, gardeners, NGOs). Our goal is to build a zero-waste, sustainable ecosystem that promotes composting and responsible waste management — one neighborhood at a time.
 
+🌐 *Live Site:* [https://farmcycle.vercel.app](https://farmcycle.vercel.app)
 
-## 🚀 Why FarmCycle?
+---
 
-Every day, tons of organic waste are discarded, while compost users spend resources acquiring compost. **FarmCycle** bridges this gap through:
+## Screenshots
 
-✅ Real-time listing of available food waste  
-✅ Hyperlocal matches between providers and collectors  
-✅ Role-based access and features  
-✅ Organized request tracking, notifications, and history  
-✅ Encouraging communities to go zero-waste 🌍
+| Landing Page | Login Page |
+| ---------- | -------------------- |
+| ![Landing](screenshots/Landing-Page.png) | ![Login](screenshots/Login-Page.png) |
 
+| Provider Dashboard | Provider Listings | Provider Requests |
+| ------------------ | ------------------- | ------------------- |
+| ![Provider Dashboard](screenshots/Provider-Dashboard.png) | ![Provider Listings](screenshots/Provider-My-Listings.png) | ![Provider Requests](screenshots/Provider-Requests.png) |
 
-## ✨ Unique Features
-
-- 🔄 **Two-sided Ecosystem**: Distinct dashboards for *Providers* and *Collectors*.
-- 📍 **Hyperlocal Matching**: Easily connect with waste partners nearby.
-- 🗑️ **Simple Listings**: Providers can quickly list food waste with quantity and pickup details.
-- 🔔 **Notifications & History**: Track real-time requests, updates, and past activities.
-- 🛡️ **Role-Based Access**: Users can register as Individuals or Organizations and access tailored features.
-- 🌐 **Zero-Waste Vision**: Designed with sustainability and scalability in mind.
+| Collector Browse | Collector Claim |
+| --------------- | --------------- |
+| ![Collector Browse](screenshots/Collector-Browse.png) | ![Collector Claim](screenshots/Collector-Claim.png) |
 
 
-## 🖼️ Screenshots
+---
 
-> Add your screenshots here inside a `screenshots/` folder and link like below:
+## Unique Features
 
-### 🔐 Authentication
-![Login Page](screenshots/login.png)
+- Two-sided ecosystem: Distinct dashboards for providers and collectors.
+- Hyperlocal matching: Easily connect with waste partners nearby.
+- Simple listings: Providers can quickly list food waste with quantity and pickup details.
+- Notifications and history: Track real-time requests, updates, and past activities.
+- Role-based access: Users can register as individuals or organizations and access tailored features.
+- Built for sustainability: Designed with a zero-waste, scalable vision.
 
-### 📦 Provider Dashboard
-![My Listings](screenshots/provider-listings.png)
+---
 
-### 🚛 Collector Dashboard
-![My Requests](screenshots/collector-requests.png)
+## Tech Stack
+
+### 🖼 Frontend (Client-side)
+
+| Tech/Library            | Purpose                                                   |
+| ----------------------- | --------------------------------------------------------- |
+| React.js                | Main frontend framework                                   |
+| React Router DOM        | Client-side routing/navigation                            |
+| Axios                   | HTTP requests to backend                                  |
+| Tailwind CSS            | Utility-first CSS framework for styling                   |
+| React Context API       | Global state management for authentication/user info      |
+| React Toastify          | Toast notifications for status messages                   |
+| Leaflet + React-Leaflet | Interactive maps for selecting and viewing locations      |
+| leaflet-geosearch       | Location search with OpenStreetMap (manual pin selection) |
+
+### 🧠 Backend (Server-side)
+
+| Tech/Library | Purpose                                               |
+| ------------ | ----------------------------------------------------- |
+| Node.js      | Backend runtime environment                           |
+| Express.js   | Web framework to define routes and API endpoints      |
+| MongoDB      | NoSQL database to store users, listings, claims, etc. |
+| Mongoose     | ODM (Object Data Modeling) library for MongoDB        |
+| bcryptjs     | Hashing passwords securely                            |
+| jsonwebtoken | Secure authentication via tokens                      |
+| Multer       | Handling file uploads (e.g., profile pictures)        |
+| dotenv       | Managing environment variables                        |
+| CORS         | Cross-Origin Resource Sharing setup                   |
+
+### 📃 Database
+
+| Tool               | Purpose                                        |
+| ------------------ | ---------------------------------------------- |
+| MongoDB Atlas      | Cloud-hosted MongoDB cluster                   |
+| GeoJSON / 2dsphere | Location-based indexing for geospatial queries |
+
+### ☁️ Deployment & Cloud Services
+
+| Tool          | Purpose                                          |
+| -----------   | ------------------------------------------------ |
+| Vercel        | Hosting frontend (React app)                     |
+| Render        | Hosting backend (Express server) – if applicable |
+| MongoDB Atlas | Cloud-hosted database                           |
+| Cloudinary    | Cloud image storage for user-uploaded images     |
 
 
-## 🛠️ Tech Stack
+---
 
-### 🔗 Full Stack MERN:
-- **MongoDB** – Database for storing users, listings, and requests
-- **Express.js** – Backend API server
-- **React.js** – Frontend UI
-- **Node.js** – Runtime for backend logic
+## Getting Started
 
-### 🧰 Other Tools:
-- **Axios** – API communication
-- **Multer** – File handling (for any future images/documents)
-- **Tailwind CSS** – Utility-first CSS for beautiful UI
-- **Render** – Backend deployment
-- **(Soon)**: Frontend deployment via Vercel or Netlify
+### Clone the repository
 
-
-## 🔧 Getting Started
-
-### 📁 Clone the repository:
 ```bash
 git clone https://github.com/FarmCycle-org/farmcycle.git
 cd farmcycle
-```
 
-### ⚙️ Backend Setup:
-```bash
+Backend Setup
+
 cd server
 npm install
 npm run dev
-```
 
-### 💻 Frontend Setup:
-Open a new terminal:
-```bash
+Frontend Setup
+
 cd client
 npm install
 npm start
-```
 
-### 🔑 Environment Variables
+Environment Variables
+Create a .env file in the server folder and add:
 
-Create a `.env` file in the `server` folder and add:
-
-```env
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
-```
-
-## 🛤️ Roadmap
-
-- [x] Role-based auth and dashboards
-- [x] Provider listing and collector request flows
-- [x] Notifications and request history
-- [ ] Chat or messaging between provider & collector
-- [ ] Geo-based recommendations
-- [ ] Admin dashboard for moderation
-
-
-
-> **FarmCycle — turning waste into worth, one cycle at a time. ♻️**
+FarmCycle — turning waste into worth, one cycle at a time.
