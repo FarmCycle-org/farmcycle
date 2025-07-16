@@ -85,30 +85,31 @@
 ## 🔧 Getting Started
 
 ### 📁 Clone the repository:
-bash
+```bash
 git clone https://github.com/FarmCycle-org/farmcycle.git
 cd farmcycle
-
+```
 
 ### ⚙ Backend Setup:
-bash
+```bash
 cd server
 npm install
 npm run dev
-
+```
 
 ### 💻 Frontend Setup:
 Open a new terminal:
-bash
+```bash
 cd client
 npm install
 npm start
-
+```
 
 ### 🔑 Environment Variables
 
 Create a .env file in the server folder and add:
 
-env
+```env
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
+```
