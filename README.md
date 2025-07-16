@@ -23,14 +23,14 @@
 
 ---
 
-## Unique Features
+## 🌟 Unique Features
 
-- Two-sided ecosystem: Distinct dashboards for providers and collectors.
-- Hyperlocal matching: Easily connect with waste partners nearby.
-- Simple listings: Providers can quickly list food waste with quantity and pickup details.
-- Notifications and history: Track real-time requests, updates, and past activities.
-- Role-based access: Users can register as individuals or organizations and access tailored features.
-- Built for sustainability: Designed with a zero-waste, scalable vision.
+- **Two-sided ecosystem:** Distinct dashboards for providers and collectors.
+- **Hyperlocal matching:** Easily connect with waste partners nearby.
+- **Simple listings:** Providers can quickly list food waste with quantity and pickup details.
+- **Notifications and history:** Track real-time requests, updates, and past activities.
+- **Role-based access:** Users can register as individuals or organizations and access tailored features.
+- **Built for sustainability:** Designed with a zero-waste, scalable vision.
 
 ---
 
@@ -82,29 +82,33 @@
 
 ---
 
-## Getting Started
+## 🔧 Getting Started
 
-### Clone the repository
-
-```bash
+### 📁 Clone the repository:
+bash
 git clone https://github.com/FarmCycle-org/farmcycle.git
 cd farmcycle
 
-Backend Setup
 
+### ⚙ Backend Setup:
+bash
 cd server
 npm install
 npm run dev
 
-Frontend Setup
 
+### 💻 Frontend Setup:
+Open a new terminal:
+bash
 cd client
 npm install
 npm start
 
-Environment Variables
+
+### 🔑 Environment Variables
+
 Create a .env file in the server folder and add:
 
+env
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
-FarmCycle — turning waste into worth, one cycle at a time.
