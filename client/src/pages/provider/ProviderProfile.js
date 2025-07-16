@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import ProviderNavbar from "../../components/ProviderNavbar"; // Corrected Navbar for Provider
 import LocationSection from "../../components/LocationSection";
 import { FaCamera, FaTrashAlt, FaTimes } from 'react-icons/fa'; // Import Font Awesome icons
@@ -17,7 +17,7 @@ const ProviderProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/users/me", {
+        const res = await API.get("/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(res.data);
@@ -34,7 +34,7 @@ const ProviderProfile = () => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/api/users/me", {
+        const res = await API.get("/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const coords = res.data?.location?.coordinates;
@@ -53,12 +53,12 @@ const ProviderProfile = () => {
 
   const handleUpdate = async () => {
     try {
-      await axios.put("http://localhost:5000/api/users/me", formData, {
+      await API.put("/users/me", formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setEditMode(false);
       // Optional: Re-fetch profile to ensure UI is updated with latest data
-      const res = await axios.get("http://localhost:5000/api/users/me", {
+      const res = await API.get("/users/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUser(res.data);
@@ -72,14 +72,14 @@ const ProviderProfile = () => {
     const uploadFormData = new FormData(); // Use a different variable name to avoid conflict
     uploadFormData.append("image", file);
     try {
-      await axios.post("http://localhost:5000/api/users/me/profile-picture", uploadFormData, {
+      await API.post("/users/me/profile-picture", uploadFormData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
       // Refresh profile to show new picture
-      const res = await axios.get("http://localhost:5000/api/users/me", {
+      const res = await API.get("/users/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUser(res.data);
@@ -93,11 +93,11 @@ const ProviderProfile = () => {
 
   const handleDeletePicture = async () => {
     try {
-      await axios.delete("http://localhost:5000/api/users/me/profile-picture", {
+      await API.delete("/users/me/profile-picture", {
         headers: { Authorization: `Bearer ${token}` },
       });
       // Refresh profile to remove picture
-      const res = await axios.get("http://localhost:5000/api/users/me", {
+      const res = await API.get("/users/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUser(res.data);

@@ -1,7 +1,7 @@
 // src/pages/provider/Requests.js
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import ProviderNavbar from "../../components/ProviderNavbar";
 
 const Requests = () => {
@@ -24,10 +24,10 @@ const Requests = () => {
     const fetchData = async () => {
       try {
         const [claimsRes, pickupsRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/claims/provider/claims", {
+          API.get("/claims/provider/claims", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("http://localhost:5000/api/pickups/my", {
+          API.get("/pickups/my", {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -63,8 +63,8 @@ const Requests = () => {
 
   const handleAction = async (claimId, action) => {
     try {
-      await axios.put(
-        `http://localhost:5000/api/claims/${claimId}/${action}`,
+      await API.put(
+        `/claims/${claimId}/${action}`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -90,8 +90,8 @@ const Requests = () => {
   const handleMarkCollected = async (pickupId, wasteId) => {
     try {
       // Step 1: Mark pickup as complete
-      await axios.put(
-        `http://localhost:5000/api/pickups/${pickupId}/complete`,
+      await API.put(
+        `/pickups/${pickupId}/complete`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -99,8 +99,8 @@ const Requests = () => {
       );
 
       // Step 2: Mark waste as collected
-      await axios.put(
-        `http://localhost:5000/api/waste/${wasteId}/collected`,
+      await API.put(
+        `/waste/${wasteId}/collected`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },

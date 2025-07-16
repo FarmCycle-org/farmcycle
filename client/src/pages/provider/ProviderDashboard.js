@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import ProviderNavbar from "../../components/ProviderNavbar";
 import { FaCloud, FaLeaf, FaBox } from 'react-icons/fa'; // Import Font Awesome icons
@@ -23,7 +23,7 @@ const ProviderDashboard = () => {
     const fetchWasteData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/api/waste/my", {
+        const res = await API.get("/waste/my", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -43,7 +43,7 @@ const ProviderDashboard = () => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/api/users/me", {
+        const res = await API.get("/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const coords = res.data?.location?.coordinates;

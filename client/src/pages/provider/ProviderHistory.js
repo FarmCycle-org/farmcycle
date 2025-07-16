@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import ProviderNavbar from "../../components/ProviderNavbar"; // Ensure this path is correct
 
 const ProviderHistory = () => {
@@ -11,7 +11,7 @@ const ProviderHistory = () => {
       setLoading(true); // Set loading true when fetching
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/api/waste/my", {
+        const res = await API.get("/waste/my", {
           headers: { Authorization: `Bearer ${token}` },
         });
 

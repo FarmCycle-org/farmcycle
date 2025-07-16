@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 import ProviderNavbar from "../../components/ProviderNavbar"; // Ensure this path is correct
 import { toast } from 'react-toastify';
 
@@ -26,7 +26,7 @@ const MyListings = () => {
   useEffect(() => {
     const fetchMyWaste = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/waste/my", {
+        const res = await API.get("/waste/my", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const active = res.data.filter((item) => item.status !== "collected");
@@ -41,7 +41,7 @@ const MyListings = () => {
 
     const fetchUserLocation = async () => {
     try {
-        const res = await axios.get("http://localhost:5000/api/users/me", {
+        const res = await API.get("/users/me", {
             headers: { Authorization: `Bearer ${token}` },
         });
         setUserLocation(res.data.location);
@@ -109,7 +109,7 @@ const MyListings = () => {
       formDataToSend.append("longitude", userLocation.coordinates[0]); // Ensure correct lat/long order
       formDataToSend.append("image", image);
 
-      const res = await axios.post("http://localhost:5000/api/waste", formDataToSend, {
+      const res = await API.post("/waste", formDataToSend, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -141,7 +141,7 @@ const MyListings = () => {
 
   const handleDelete = async (id) => {
     try {
-        await axios.delete(`http://localhost:5000/api/waste/${id}`, {
+        await API.delete(`/waste/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -192,8 +192,8 @@ const MyListings = () => {
     // Location is already associated with the waste item, no need to send again unless it's being updated
 
     try {
-      const res = await axios.put(
-        `http://localhost:5000/api/waste/${editWaste._id}`,
+      const res = await API.put(
+        `/waste/${editWaste._id}`,
         data,
         {
           headers: {

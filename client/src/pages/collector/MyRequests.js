@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react"; // Import useCallback if you want to use it
 import CollectorNavbar from "../../components/CollectorNavbar";
-import axios from "axios";
+import API from "../../services/api";
 import { toast } from 'react-toastify';
 
 const MyRequests = () => {
@@ -25,7 +25,7 @@ const MyRequests = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const claimsRes = await axios.get("http://localhost:5000/api/claims/my/claims", {
+      const claimsRes = await API.get("/claims/my/claims", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -45,7 +45,7 @@ const MyRequests = () => {
       });
       setClaims(sortedClaims);
 
-      const pickupsRes = await axios.get("http://localhost:5000/api/pickups/my", {
+      const pickupsRes = await API.get("/pickups/my", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -60,7 +60,7 @@ const MyRequests = () => {
     } catch (err) {
       console.error("Error fetching data:", err);
     }
-  }, []); // Empty dependency array for useCallback because it only depends on localStorage/axios
+  }, []); // Empty dependency array for useCallback because it only depends on localStorage/
 
   useEffect(() => {
     fetchData(); // Call fetchData here
@@ -199,7 +199,7 @@ const MyRequests = () => {
 
                 try {
                   const token = localStorage.getItem("token");
-                  const res = await axios.post("http://localhost:5000/api/pickups", {
+                  const res = await API.post("/pickups", {
                     wasteId: selectedClaim.waste._id,
                     scheduledTime,
                   }, {
