@@ -45,9 +45,10 @@
 | Axios                   | HTTP requests to backend                                  |
 | Tailwind CSS            | Utility-first CSS framework for styling                   |
 | React Context API       | Global state management for authentication/user info      |
-| React Toastify          | Toast notifications for status messages                   |
 | Leaflet + React-Leaflet | Interactive maps for selecting and viewing locations      |
 | leaflet-geosearch       | Location search with OpenStreetMap (manual pin selection) |
+| Recharts                | Analytics and performance graphs                          |
+| React Toastify          | Toast notifications for status messages                   |
 
 ### 🧠 Backend (Server-side)
 
